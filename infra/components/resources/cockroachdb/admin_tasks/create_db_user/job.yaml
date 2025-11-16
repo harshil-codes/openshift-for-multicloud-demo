@@ -9,7 +9,8 @@ spec:
       job.kubernetes.io/job-name: crdb-create-db-user
   template:
     metadata:
-      job.kubernetes.io/job-name: crdb-create-db-user
+      labels:
+        job.kubernetes.io/job-name: crdb-create-db-user
     spec:
       env:
         - name: DB_USERNAME

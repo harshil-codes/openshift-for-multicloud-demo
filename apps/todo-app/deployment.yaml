@@ -32,9 +32,9 @@ spec:
           env:
             - name: DB_URL
               valueFrom:
-                secretRef:
-                  name: app-config
-                  key: db_url
+                secretKeyRef:
+                  name: db-credentials
+                  key: url
           ports:
             - name: http
               protocol: TCP
