@@ -472,19 +472,19 @@ EOF
     local yaml
     username=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["username"]' \
-      "$CONFIG_YAML_PATH")
+      "$CONFIG_YAML_PATH" | tr -d '\n')
     password=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["password"]' \
-      "$CONFIG_YAML_PATH")
+      "$CONFIG_YAML_PATH" | tr -d '\n')
     database=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["database"]' \
-      "$CONFIG_YAML_PATH")
+      "$CONFIG_YAML_PATH" | tr -d '\n')
     host=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["host"]' \
-      "$CONFIG_YAML_PATH")
+      "$CONFIG_YAML_PATH" | tr -d '\n')
     port=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["port"]' \
-      "$CONFIG_YAML_PATH")
+      "$CONFIG_YAML_PATH" | tr -d '\n')
     url="postgres://${username}:${password}@$host.cockroachdb.svc.cluster.local:$port/${database}"
     yaml="$(cat <<-EOF
 apiVersion: v1

@@ -39,6 +39,7 @@ spec:
           command:
             - ./cockroach
             - sql
+            - --insecure
             - --host
             - "$(DB_HOST)"
             - --port
