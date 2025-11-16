@@ -5,29 +5,20 @@ metadata:
   namespace: cockroachdb
 spec:
   nodes: 3
-  tlsEnabled: false
-  regions: [] # patch-me
-  features:
-    - reconcile
-    - reconcile-beta
-  rollingRestartDelay: 30s
-  template:
-    spec:
-      nodes: 3
-      image: cockroachdb/cockroach:v25.3.4
-      dataStore:
-        volumeClaimTemplate:
-          spec:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-              requests:
-                storage: 10Gi
-            volumeMode: Filesystem
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: DoNotSchedule
-      grpcPort: 26258
-      sqlPort: 26257
-      httpPort: 8080
+  image: cockroachdb/cockroach:v25.3.4
+  dataStore:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+  grpcPort: 26258
+  sqlPort: 26257
+  httpPort: 8080
