@@ -66,7 +66,7 @@ spec:
               host=$(echo "$DB_HOST" | tr -d '\n')
               port=$(echo "$DB_PORT" | tr -d '\n')
               dbname=$(echo "$DB_NAME" | tr -d '\n')
-              ./cockroach sql --insecure \
+              ./cockroach sql \
                 --host "$host" \
                 --port "$port" \
                 --certs-dir /certs \

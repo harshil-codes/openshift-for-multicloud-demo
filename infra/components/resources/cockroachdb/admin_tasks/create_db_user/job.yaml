@@ -67,12 +67,12 @@ spec:
               port=$(echo "$DB_PORT" | tr -d '\n')
               user=$(echo "$DB_USERNAME" | tr -d '\n')
               password=$(echo "$DB_PASSWORD" | tr -d '\n')
-              ./cockroach sql --insecure \
+              ./cockroach sql \
                 --host "$host" \
                 --port "$port" \
                 --certs-dir /certs \
                 -e "SHOW USERS;" | grep -q "$user"  && exit 0;
-                ./cockroach sql --insecure \
+                ./cockroach sql \
                   --host "$host" \
                   --port "$port" \
                   --certs-dir /certs \
