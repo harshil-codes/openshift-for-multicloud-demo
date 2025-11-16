@@ -1,10 +1,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - secrets/app
+  - secrets/database
+  - secrets/portworx
   - ../../../../components/resources/portworx/storagecluster/aws
-  - ../../../../components/resources/cockroachdb-insecure
-generators:
-  - ./credentials_generator.yaml
+  - ../../../../components/resources/cockroachdb/cluster/insecure
 patches:
   - target:
       kind: CrdbCluster
@@ -41,11 +42,3 @@ patches:
       - op: replace
         path: /metadata/name
         value: aws-sc
-  - target:
-      kind: Secret
-      name: cloud-creds
-      namespace: replace-me
-    patch: |-
-      - op: replace
-        path: /metadata/namespace
-        value: portworx
