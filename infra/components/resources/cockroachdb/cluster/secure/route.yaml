@@ -10,7 +10,7 @@ spec:
     targetPort: https
   to:
     kind: Service
-    name: cockroachdb
+    name: crdb-cluster-public
     weight: 100
   tls:
     insecureEdgeTerminationPolicy: Redirect
