@@ -485,7 +485,7 @@ EOF
     port=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["port"]' \
         "$CONFIG_YAML_PATH")
-    url="postgres://${username}:${password}@$host.cockroachdb.svc.cluster.local:$port/${database}"
+    url="postgres://${username}:${password}@${host}:$port/${database}"
     yaml="$(cat <<-EOF
 apiVersion: v1
 kind: Secret
