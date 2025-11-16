@@ -50,12 +50,12 @@ spec:
                   key: database
             - name: DB_HOST
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: db-config
                   key: host
             - name: DB_PORT
               valueFrom:
-                configMapRef:
+                configMapKeyRef:
                   name: db-config
                   key: port
           name: do-it
