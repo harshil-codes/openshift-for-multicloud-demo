@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-todo-app
+  namespace: example-todo-app
+  annotations:
+    image.openshift.io/triggers: |-
+      [
+        {
+          "from": {
+            "kind: "ImageStreamTag",
+            "name": "example-todo-app:latest"
+          },
+          "fieldPath": "spec.template.spec.containers[0].image"
+        }
+      ]
+  labels:
+    app: example-todo-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: example-todo-app
+  template:
+    metadata:
+      labels:
+        app: example-todo-app
+    spec:
+      containers:
+        - name: example-todo-app
+          image: ' '
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretRef:
+                  name: app-config
+                  key: db_url
+          ports:
+            - name: http
+              protocol: TCP
+              port: 8080

@@ -17,7 +17,16 @@ spec:
       from:
         kind: ImageStreamTag
         name: golang:1.18-ubi9
+        namespace: openshift
   output:
     to:
       kind: ImageStreamTag
       name: example-todo-app:latest
+  triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      imageChange: {}
+    - github:
+        secret: supersecret
+    - generic:
+        secret: supersecret
