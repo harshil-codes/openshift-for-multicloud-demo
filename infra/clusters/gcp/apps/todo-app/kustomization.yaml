@@ -17,7 +17,7 @@ patches:
         value: example-todo-app
   - target:
       kind: Job
-      name: crdb-create-datbaase
+      name: crdb-create-database
       namespace: change-me
     patch: |-
       - op: replace
@@ -25,7 +25,7 @@ patches:
         value: example-todo-app
   - target:
       kind: Job
-      name: crdb-create-db-user
+      name: crdb-create-user
       namespace: change-me
     patch: |-
       - op: replace
