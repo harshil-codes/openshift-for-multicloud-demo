@@ -47,4 +47,8 @@ spec:
               ./cockroach sql --insecure \
                 --host "$host" \
                 --port "$port" \
-                -e "CREATE USER $user WITH PASSWORD '$password' IF NOT EXISTS;"
+                -e "SHOW USER;" | grep -q "$user"  && exit 0;
+                ./cockroach sql --insecure \
+                  --host "$host" \
+                  --port "$port" \
+                  -e "CREATE USER $user WITH PASSWORD '$password';"
