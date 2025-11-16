@@ -14,3 +14,21 @@ spec:
       port: 443
       targetPort: http
       protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cockroachdb-db
+  namespace: cockroachdb
+  labels:
+    app.kubernetes.io/name: cockroachdb
+spec:
+  selector:
+    app.kubernetes.io/name: cockroachdb
+  type: ClusterIP
+  ports:
+    - name: https
+      port: 26257
+      targetPort: sql
+      protocol: TCP
