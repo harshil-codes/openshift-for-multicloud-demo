@@ -12,7 +12,7 @@ spec:
       labels:
         job.kubernetes.io/job-name: crdb-create-db-user
     spec:
-      restartPolicy: onFailure
+      restartPolicy: OnFailure
       env:
         - name: DB_USERNAME
           valueFrom:
