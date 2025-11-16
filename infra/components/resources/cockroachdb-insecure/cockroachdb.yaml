@@ -1,0 +1,31 @@
+apiVersion: crdb.cockroachlabs.com/v1alpha1
+kind: CrdbCluster
+metadata:
+  name: crdb-cluster
+  namespace: cockroachdb
+spec:
+  tlsEnabled: false
+  regions: [] # patch-mea
+  features:
+    - reconcile
+    - reconcile-beta
+  rollingRestartDelay: 30s
+  template:
+    spec:
+      image: cockroachdb/cockroach:v25.3.4
+      dataStore:
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 10Gi
+            volumeMode: Filesystem
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+      grpcPort: 26258
+      sqlPort: 26257
+      httpPort: 8080
