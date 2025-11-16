@@ -2,8 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - ../../../../../apps/todo-app
-  - ../../../../../components/resources/cockroachdb/admin_tasks/create_database
-  - ../../../../../components/resources/cockroachdb/admin_tasks/create_db_user
+  - ../../../../components/resources/cockroachdb/admin_tasks/create_database
+  - ../../../../components/resources/cockroachdb/admin_tasks/create_db_user
 generators:
   - ./credentials_generator.yaml
 patches:
