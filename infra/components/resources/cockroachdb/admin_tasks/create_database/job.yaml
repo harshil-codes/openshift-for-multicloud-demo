@@ -37,12 +37,11 @@ spec:
                   key: database
           name: do-it
           command:
-            - ./cockroach
-            - sql
-            - --insecure
-            - --host
-            - "$(DB_HOST)"
-            - --port
-            - "$(DB_PORT)"
-            - -e
-            - "CREATE DATABASE IF NOT EXISTS $(DB_NAME);"
+            - sh
+            - -c
+            - |-
+              env | grep -i DB_
+              ./cockroach sql --insecure \
+                --host "$(DB_HOST)" \
+                --port "$(DB_PORT)" \
+                -e "CREATE DATABASE IF NOT EXISTS $(DB_NAME);"
