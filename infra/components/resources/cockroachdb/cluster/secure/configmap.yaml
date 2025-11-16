@@ -5,4 +5,4 @@ metadata:
   namespace: change-me
 data:
   host: change-me
-  port: 26257
+  port: "26257"
