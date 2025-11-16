@@ -468,6 +468,58 @@ EOF
 
   }
 
+  _write_database_secret() {
+    local yaml
+    username=$(sops decrypt --extract \
+        '["common"]["database"]["settings"]["credentials"]["username"]' \
+      "$CONFIG_YAML_PATH")
+    password=$(sops decrypt --extract \
+        '["common"]["database"]["settings"]["credentials"]["password"]' \
+      "$CONFIG_YAML_PATH")
+    database=$(sops decrypt --extract \
+        '["common"]["database"]["settings"]["credentials"]["database"]' \
+      "$CONFIG_YAML_PATH")
+    host=$(sops decrypt --extract \
+        '["common"]["database"]["settings"]["credentials"]["host"]' \
+      "$CONFIG_YAML_PATH")
+    port=$(sops decrypt --extract \
+        '["common"]["database"]["settings"]["credentials"]["port"]' \
+      "$CONFIG_YAML_PATH")
+    url="postgres://${username}:${password}@$host.cockroachdb.svc.cluster.local:$port/${database}"
+    yaml="$(cat <<-EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-credentials
+  namespace: change-me
+data:
+  username: "$(base64 -w 0 <<< "$username")"
+  password: "$(base64 -w 0 <<< "$password")"
+  database: "$(base64 -w 0 <<< "$database")"
+  host: "$(base64 -w 0 <<< "$host")"
+  port: "$(base64 -w 0 <<< "$port")"
+  url: "$(base64 -w 0 <<< "$url")"
+EOF
+)"
+    if test "$(yq -r .data <<< "$yaml")" == "null"
+    then
+      >&2 echo "ERROR: Couldn't generate database secret creds"
+      return 1
+    fi
+    secret_dir="$(dirname "$0")/infra/secrets/database"
+    test -d "$secret_dir" || mkdir -p "$secret_dir"
+    cat >"$secret_dir/kustomization.yaml" <<-EOF
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- credential.yaml
+EOF
+    _encrypt_file_if_pgp_fp_differs_from_cluster_pgp_fp \
+      "$secret_dir/credential.yaml" \
+      '.sops.pgp[0].fp' \
+      "$yaml"
+  }
+
   _write_cluster_sops_config_if_pgp_fp_changed
   _write_pull_secret_if_pgp_fp_changed
   _write_cloud_secret_if_pgp_fp_changed 'aws'
@@ -476,6 +528,7 @@ EOF
   _write_acm_gitops_secret
   _write_ssh_key_secret
   _write_installconfig_cloud_secrets 'aws' 'gcp'
+  _write_database_secret
   _update_secrets_kustomization_yaml
 }
 
