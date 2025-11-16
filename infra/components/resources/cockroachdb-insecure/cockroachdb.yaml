@@ -4,6 +4,7 @@ metadata:
   name: crdb-cluster
   namespace: cockroachdb
 spec:
+  nodes: 3
   tlsEnabled: false
   regions: [] # patch-me
   features:
