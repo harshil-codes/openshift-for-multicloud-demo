@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/name: cockroachdb
 spec:
   port:
-    targetPort: 8080
+    targetPort: https
   to:
     kind: Service
     name: cockroachdb
