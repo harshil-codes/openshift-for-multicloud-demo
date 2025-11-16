@@ -37,12 +37,15 @@ spec:
                   name: db-credentials
                   key: database
           command:
-            - ./cockroach
-            - sql
-            - --insecure
-            - --host
-            - "$(DB_HOST)"
-            - --port
-            - "$(DB_PORT)"
-            - -e
-            - "CREATE USER $(DB_USER) WITH PASSWORD $(DB_PASSWORD);"
+            - sh
+            - -c
+            - |-
+              host=$(echo "$(DB_HOST)" | tr -d '\n')
+              port=$(echo "$(DB_PORT)" | tr -d '\n')
+              user=$(echo "$(DB_USERNAME)" | tr -d '\n')
+              password=$(echo "$(DB_PASSWORD)" | tr -d '\n')
+              echo "port: '$(DB_PORT)'"
+              ./cockroach sql --insecure \
+                --host "$host" \
+                --port "$port" \
+                -e "CREATE USER $user WITH PASSWORD '$password' IF NOT EXISTS;"

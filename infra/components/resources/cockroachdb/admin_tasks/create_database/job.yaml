@@ -40,8 +40,11 @@ spec:
             - sh
             - -c
             - |-
+              host=$(echo "$(DB_HOST)" | tr -d '\n')
+              port=$(echo "$(DB_PORT)" | tr -d '\n')
+              dbname=$(echo "$(DB_NAME)" | tr -d '\n')
               echo "port: '$(DB_PORT)'"
               ./cockroach sql --insecure \
-                --host "$(DB_HOST)" \
-                --port "$(DB_PORT)" \
-                -e "CREATE DATABASE IF NOT EXISTS $(DB_NAME);"
+                --host "$host" \
+                --port "$port" \
+                -e "CREATE DATABASE IF NOT EXISTS $dbname;"
