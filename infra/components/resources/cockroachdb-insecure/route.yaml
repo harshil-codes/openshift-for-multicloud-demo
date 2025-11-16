@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cockroachdb
+  namespace: cockroachdb
+  labels:
+    app.kubernetes.io/name: cockroachdb
+spec:
+  port:
+    targetPort: 8080
+  to:
+    kind: Service
+    name: cockroachdb
+    weight: 100
+  tls:
+    termination: reencrypt
+
