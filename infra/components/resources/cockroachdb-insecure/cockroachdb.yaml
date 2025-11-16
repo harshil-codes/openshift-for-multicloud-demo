@@ -5,7 +5,8 @@ metadata:
   namespace: cockroachdb
 spec:
   nodes: 3
-  image: cockroachdb/cockroach:v25.3.4
+  image:
+    name: cockroachdb/cockroach:v25.3.4
   dataStore:
     volumeClaimTemplate:
       spec:
