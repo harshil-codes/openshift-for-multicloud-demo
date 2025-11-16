@@ -55,36 +55,26 @@
 - set_fact:
     gcp_managed_cluster_id: "{{ gcp_managed_cluster_network.name | regex_replace('-network$', '')}}"
 
-- set_fact:
-    fw_rules:
-      - name: portworx
-        ports:
-          - 7070
-          - 8080
-          - 8443
-          - 17016
-      - name: cockroach
-        ports:
-          - 8080
-          - 26257
 - name: Add GCP Firewall rules
   google.cloud.gcp_compute_firewall:
     project: "{{ gcp_project_id }}"
     auth_kind: serviceaccount
     service_account_contents: "{{ gcp_credentials }}"
-    name: "{{ gcp_managed_cluster_id }}-{{ item.name }}-0"
+    name: "{{ gcp_managed_cluster_id }}-{{ item.provider }}-0"
     network:
       selfLink: "global/networks/{{ gcp_managed_cluster_network.name }}"
     allowed:
       - ip_protocol: tcp
-        ports: "{{ item.ports }}"
+        ports: "{{ item.network.ports }}"
     source_tags:
       - "{{ gcp_managed_cluster_id }}-control-plane"
       - "{{ gcp_managed_cluster_id }}-worker"
     target_tags:
       - "{{ gcp_managed_cluster_id }}-control-plane"
       - "{{ gcp_managed_cluster_id }}-worker"
-  loop: "{{ fw_rules }}"
+  loop:
+    - "{{ common.datareplication.settings }}"
+    - "{{ common.database.settings }}"
 
 - name: Add AWS Security Group ingress rules
   loop: "{{ fw_rules }}"
