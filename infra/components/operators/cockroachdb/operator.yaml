@@ -1,0 +1,19 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: cockroachdb-og
+  namespace: cockroachdb-operator
+spec:
+  upgradeStrategy: Default
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: cockroachdb-operator-sub
+  namespace: cockroachdb-operator
+spec:
+  sourceNamespace: openshift-marketplace
+  source: certified-operators
+  channel: stable
+  installPlanApproval: Automatic
+  name: cockroachdb-certified
