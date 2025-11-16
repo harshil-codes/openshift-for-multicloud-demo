@@ -10,7 +10,7 @@ patches:
   - target:
       kind: Secret
       name: db-credentials
-      namespace: replace-me
+      namespace: change-me
     patch: |-
       - op: replace
         path: /metadata/namespace
