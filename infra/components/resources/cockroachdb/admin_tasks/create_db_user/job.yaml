@@ -14,34 +14,34 @@ spec:
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: db-creds
+                  name: db-credentials
                   key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-creds
+                  name: db-credentials
                   key: password
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: db-creds
+                  name: db-credentials
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: db-creds
+                  name: db-credentials
                   key: port
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
-                  name: db-creds
+                  name: db-credentials
                   key: database
           command:
             - ./cockroach
             - sql
             - --host
-            - "$(DB_HOST)"
+            - "$DB_HOST"
             - --port
-            - "$(DB_PORT}"
+            - "$DB_PORT"
             - -e
-            - "CREATE DATABASE IF NOT EXISTS $(DB_NAME);"
+            - "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
