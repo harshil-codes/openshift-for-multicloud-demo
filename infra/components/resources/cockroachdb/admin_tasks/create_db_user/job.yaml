@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: crdb-create-user
+  namespace: change-me
+spec:
+  selector:
+    matchLabels:
+      job.kubernetes.io/job-name: crdb-create-db-user
+  template:
+    metadata:
+      job.kubernetes.io/job-name: crdb-create-db-user
+    spec:
+      env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretRef:
+              name: db-creds
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretRef:
+              name: db-creds
+              key: password
+        - name: DB_HOST
+          valueFrom:
+            secretRef:
+              name: db-creds
+              key: host
+        - name: DB_PORT
+          valueFrom:
+            secretRef:
+              name: db-creds
+              key: port
+        - name: DB_NAME
+          valueFrom:
+            secretRef:
+              name: db-creds
+              key: database
+      containers:
+        - image: cockroachdb/cockroach:v25.3.4
+          command:
+            - sql
+            - --host
+            - "$DB_HOST"
+            - --port
+            - "$DB_PORT"
+            - -e
+            - "CREATE USER $DB_USERNAME WITH PASSWORD '$DB_PASSWORD';"
