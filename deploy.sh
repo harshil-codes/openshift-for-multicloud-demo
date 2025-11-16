@@ -472,19 +472,19 @@ EOF
     local yaml
     username=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["username"]' \
-      "$CONFIG_YAML_PATH" | tr -d '\n')
+        "$CONFIG_YAML_PATH")
     password=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["password"]' \
-      "$CONFIG_YAML_PATH" | tr -d '\n')
+        "$CONFIG_YAML_PATH")
     database=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["database"]' \
-      "$CONFIG_YAML_PATH" | tr -d '\n')
+        "$CONFIG_YAML_PATH")
     host=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["host"]' \
-      "$CONFIG_YAML_PATH" | tr -d '\n')
+        "$CONFIG_YAML_PATH")
     port=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["port"]' \
-      "$CONFIG_YAML_PATH" | tr -d '\n')
+        "$CONFIG_YAML_PATH")
     url="postgres://${username}:${password}@$host.cockroachdb.svc.cluster.local:$port/${database}"
     yaml="$(cat <<-EOF
 apiVersion: v1
@@ -493,12 +493,12 @@ metadata:
   name: db-credentials
   namespace: change-me
 data:
-  username: "$(base64 -w 0 <<< "$username")"
-  password: "$(base64 -w 0 <<< "$password")"
-  database: "$(base64 -w 0 <<< "$database")"
-  host: "$(base64 -w 0 <<< "$host")"
-  port: "$(base64 -w 0 <<< "$port")"
-  url: "$(base64 -w 0 <<< "$url")"
+  username: "$(base64 -w 0 <<< "$username" | tr -d '\n')"
+  password: "$(base64 -w 0 <<< "$password" | tr -d '\n')"
+  database: "$(base64 -w 0 <<< "$database" | tr -d '\n')"
+  host: "$(base64 -w 0 <<< "$host" | tr -d '\n')"
+  port: "$(base64 -w 0 <<< "$port" | tr -d '\n')"
+  url: "$(base64 -w 0 <<< "$url" | tr -d '\n')"
 EOF
 )"
     if test "$(yq -r .data <<< "$yaml")" == "null"
