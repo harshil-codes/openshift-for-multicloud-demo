@@ -14,9 +14,9 @@ patches:
       - op: replace
         path: /spec/regions
         value:
-          - code: us-east1
+          - code: us-east-1
             nodes: 3
-            cloudProvider: gcp
+            cloudProvider: aws
             namespace: cockroachdb
   - target:
       kind: StorageCluster
