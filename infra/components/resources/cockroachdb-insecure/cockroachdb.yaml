@@ -1,3 +1,5 @@
+# See this example for patching guidance:
+# https://github.com/cockroachdb/cockroach-operator/blob/master/examples/3-nodes-insecure.yaml
 apiVersion: crdb.cockroachlabs.com/v1alpha1
 kind: CrdbCluster
 metadata:
@@ -8,7 +10,7 @@ spec:
   image:
     name: cockroachdb/cockroach:v25.3.4
   dataStore:
-    volumeClaimTemplate:
+    pvc:
       spec:
         accessModes:
           - ReadWriteOnce
@@ -16,6 +18,8 @@ spec:
           requests:
             storage: 10Gi
         volumeMode: Filesystem
+  topology:
+    zones: [] # patch-me
   topologySpreadConstraints:
     - maxSkew: 1
       topologyKey: topology.kubernetes.io/zone
