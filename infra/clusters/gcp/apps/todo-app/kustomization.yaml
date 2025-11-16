@@ -39,6 +39,17 @@ patches:
           labels:
             failure-domain.beta.kubernetes.io/zone: us-east1c
   - target:
+      kind: ConfigMap
+      name: db-config
+      namespace: change-me
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: example-todo-app
+      - op: replace
+        path: /data/host
+        value: cockroachdb.example-todo-app.svc.cluster.local
+  - target:
       kind: Secret
       name: db-credentials
       namespace: change-me

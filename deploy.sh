@@ -479,13 +479,6 @@ EOF
     database=$(sops decrypt --extract \
         '["common"]["database"]["settings"]["credentials"]["database"]' \
         "$CONFIG_YAML_PATH")
-    host=$(sops decrypt --extract \
-        '["common"]["database"]["settings"]["credentials"]["host"]' \
-        "$CONFIG_YAML_PATH")
-    port=$(sops decrypt --extract \
-        '["common"]["database"]["settings"]["credentials"]["port"]' \
-        "$CONFIG_YAML_PATH")
-    url="postgres://${username}:${password}@${host}:$port/${database}"
     yaml="$(cat <<-EOF
 apiVersion: v1
 kind: Secret
@@ -496,9 +489,6 @@ data:
   username: "$(base64 -w 0 <<< "$username" | tr -d '\n')"
   password: "$(base64 -w 0 <<< "$password" | tr -d '\n')"
   database: "$(base64 -w 0 <<< "$database" | tr -d '\n')"
-  host: "$(base64 -w 0 <<< "$host" | tr -d '\n')"
-  port: "$(base64 -w 0 <<< "$port" | tr -d '\n')"
-  url: "$(base64 -w 0 <<< "$url" | tr -d '\n')"
 EOF
 )"
     if test "$(yq -r .data <<< "$yaml")" == "null"

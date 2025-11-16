@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - cockroachdb.yaml
   - route.yaml
+  - configmap.yaml

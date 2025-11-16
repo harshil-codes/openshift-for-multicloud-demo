@@ -44,21 +44,21 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: password
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: host
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: port
             - name: DB_NAME
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
                   key: database
+            - name: DB_HOST
+              valueFrom:
+                configMapRef:
+                  name: db-config
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                configMapRef:
+                  name: db-config
+                  key: port
           command:
             - sh
             - -c
