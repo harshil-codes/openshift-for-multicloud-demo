@@ -7,41 +7,41 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
-      env:
-        - name: DB_USERNAME
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: password
-        - name: DB_HOST
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: host
-        - name: DB_PORT
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: port
-        - name: DB_NAME
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: database
       containers:
         - image: cockroachdb/cockroach:v25.3.4
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: password
+            - name: DB_HOST
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: database
           name: do-it
           command:
             - ./cockroach
             - sql
             - --host
-            - "$DB_HOST"
+            - "$(DB_HOST)"
             - --port
-            - "$DB_PORT"
+            - "$(DB_PORT}"
             - -e
-            - "CREATE DATABASE IF NOT EXISTS $DB_NAME;"
+            - "CREATE DATABASE IF NOT EXISTS $(DB_NAME);"

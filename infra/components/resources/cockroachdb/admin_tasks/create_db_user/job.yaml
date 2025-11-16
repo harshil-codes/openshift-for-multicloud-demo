@@ -7,35 +7,35 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
-      env:
-        - name: DB_USERNAME
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: username
-        - name: DB_PASSWORD
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: password
-        - name: DB_HOST
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: host
-        - name: DB_PORT
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: port
-        - name: DB_NAME
-          valueFrom:
-            secretRef:
-              name: db-creds
-              key: database
       containers:
         - image: cockroachdb/cockroach:v25.3.4
           name: do-it
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: password
+            - name: DB_HOST
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretRef:
+                  name: db-creds
+                  key: database
           command:
             - ./cockroach
             - sql
