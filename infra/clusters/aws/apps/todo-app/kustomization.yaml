@@ -9,7 +9,7 @@ generators:
 patches:
   - target:
       kind: Secret
-      name: db-creds
+      name: db-credentials
       namespace: replace-me
     patch: |-
       - op: replace
