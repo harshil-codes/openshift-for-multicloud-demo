@@ -13,27 +13,27 @@ spec:
           env:
             - name: DB_USERNAME
               valueFrom:
-                secretRef:
+                secretKeyRef:
                   name: db-creds
                   key: username
             - name: DB_PASSWORD
               valueFrom:
-                secretRef:
+                secretKeyRef:
                   name: db-creds
                   key: password
             - name: DB_HOST
               valueFrom:
-                secretRef:
+                secretKeyRef:
                   name: db-creds
                   key: host
             - name: DB_PORT
               valueFrom:
-                secretRef:
+                secretKeyRef:
                   name: db-creds
                   key: port
             - name: DB_NAME
               valueFrom:
-                secretRef:
+                secretKeyRef:
                   name: db-creds
                   key: database
           command:
