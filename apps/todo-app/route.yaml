@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: example-todo-app
+  namespace: example-todo-app
+  labels:
+    app: example-todo-app
+spec:
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: example-todo-app
+    weight: 100
+  tls:
+    termination: edge
+

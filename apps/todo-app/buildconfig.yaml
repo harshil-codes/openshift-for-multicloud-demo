@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  name: example-todo-app
+  namespace: example-todo-app
+  labels:
+    app: example-todo-app
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/carlosonunez-redhat/go-todo-app
+      ref: main
+  strategy:
+    type: Source
+    sourceStrategy:
+      from:
+        kind: ImageStreamTag
+        name: golang:1.18-ubi9
+  output:
+    to:
+      kind: ImageStreamTag
+      name: example-todo-app:latest
