@@ -40,10 +40,10 @@ spec:
             - sh
             - -c
             - |-
-              host=$(echo "$(DB_HOST)" | tr -d '\n')
-              port=$(echo "$(DB_PORT)" | tr -d '\n')
-              user=$(echo "$(DB_USERNAME)" | tr -d '\n')
-              password=$(echo "$(DB_PASSWORD)" | tr -d '\n')
+              host=$(echo "$DB_HOST" | tr -d '\n')
+              port=$(echo "$DB_PORT" | tr -d '\n')
+              user=$(echo "$DB_USERNAME" | tr -d '\n')
+              password=$(echo "$DB_PASSWORD" | tr -d '\n')
               ./cockroach sql --insecure \
                 --host "$host" \
                 --port "$port" \
