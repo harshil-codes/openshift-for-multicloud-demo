@@ -7,8 +7,31 @@ spec:
   template:
     spec:
       restartPolicy: OnFailure
+      volumes:
+        - name: certs
+          projected:
+            sources:
+            - secret:
+                items:
+                - key: ca.crt
+                  path: ca.crt
+                - key: tls.crt
+                  path: node.crt
+                - key: tls.key
+                  path: node.key
+                name: crdb-cluster-node
+            - secret:
+                items:
+                - key: tls.crt
+                  path: client.root.crt
+                - key: tls.key
+                  path: client.root.key
+                name: crdb-cluster-root
       containers:
         - image: cockroachdb/cockroach:v25.3.4
+          volumeMounts:
+            - name: certs
+              mountPath: /certs
           env:
             - name: DB_USERNAME
               valueFrom:
@@ -46,4 +69,5 @@ spec:
               ./cockroach sql --insecure \
                 --host "$host" \
                 --port "$port" \
+                --certs-dir /certs \
                 -e "CREATE DATABASE IF NOT EXISTS $dbname;"
