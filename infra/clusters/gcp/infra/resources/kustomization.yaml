@@ -8,33 +8,6 @@ generators:
   - ./credentials_generator.yaml
 patches:
   - target:
-      kind: CrdbCluster
-      name: crdb-cluster
-      namespace: cockroachdb
-    patch: |-
-      - op: replace
-        path: /spec/regions
-        value:
-          - code: us-east1
-            nodes: 3
-            cloudProvider: gcp
-            namespace: cockroachdb
-      - op: replace
-        path: /spec/topology/zones
-        value:
-        - locality: region=us-east1,zone=us-east1a
-          suffix: -a
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east1a
-        - locality: region=us-east1,zone=us-east1b
-          suffix: -b
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east1b
-        - locality: region=us-east1,zone=us-east1c
-          suffix: -c
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east1c
-  - target:
       kind: StorageCluster
       name: replace-me
       namespace: portworx

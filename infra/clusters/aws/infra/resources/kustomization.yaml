@@ -3,35 +3,7 @@ kind: Kustomization
 resources:
   - secrets/portworx
   - ../../../../components/resources/portworx/storagecluster/aws
-  - ../../../../components/resources/cockroachdb/cluster/insecure
 patches:
-  - target:
-      kind: CrdbCluster
-      name: crdb-cluster
-      namespace: cockroachdb
-    patch: |-
-      - op: replace
-        path: /spec/regions
-        value:
-          - code: us-east-2
-            nodes: 3
-            cloudProvider: aws
-            namespace: cockroachdb
-      - op: replace
-        path: /spec/topology/zones
-        value:
-        - locality: region=us-east-2,zone=us-east-2a
-          suffix: -a
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east-2a
-        - locality: region=us-east-2,zone=us-east-2b
-          suffix: -b
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east-2b
-        - locality: region=us-east-2,zone=us-east-2c
-          suffix: -c
-          labels:
-            failure-domain.beta.kubernetes.io/zone: us-east-2c
   - target:
       kind: StorageCluster
       name: replace-me

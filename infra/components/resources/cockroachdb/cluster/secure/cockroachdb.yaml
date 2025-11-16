@@ -6,6 +6,7 @@ metadata:
   name: crdb-cluster
   namespace: cockroachdb
 spec:
+  tlsEnabled: true
   nodes: 3
   image:
     name: cockroachdb/cockroach:v25.3.4

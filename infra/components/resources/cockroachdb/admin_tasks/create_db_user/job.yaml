@@ -47,7 +47,7 @@ spec:
               ./cockroach sql --insecure \
                 --host "$host" \
                 --port "$port" \
-                -e "SHOW USER;" | grep -q "$user"  && exit 0;
+                -e "SHOW USERS;" | grep -q "$user"  && exit 0;
                 ./cockroach sql --insecure \
                   --host "$host" \
                   --port "$port" \
