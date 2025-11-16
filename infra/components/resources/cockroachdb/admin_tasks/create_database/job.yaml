@@ -40,7 +40,7 @@ spec:
             - sh
             - -c
             - |-
-              env | grep -i DB_
+              echo "port: '$(DB_PORT)'"
               ./cockroach sql --insecure \
                 --host "$(DB_HOST)" \
                 --port "$(DB_PORT)" \
