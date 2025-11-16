@@ -56,7 +56,7 @@ patches:
         value: example-todo-app
       - op: replace
         path: /data/host
-        value: cockroachdb.example-todo-app.svc.cluster.local
+        value: crdb-cluster-public.example-todo-app.svc.cluster.local
   - target:
       kind: Secret
       name: db-credentials
