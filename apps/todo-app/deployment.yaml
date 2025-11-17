@@ -91,7 +91,7 @@ spec:
                   name: db-config
                   key: port
             - name: DB_URL
-              value: "postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+              value: "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
           ports:
             - name: http
               protocol: TCP
