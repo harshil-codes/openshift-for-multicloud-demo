@@ -14,9 +14,9 @@ spec:
   cloudStorage:
     provider: gce
     deviceSpecs:
-    - type=pd-standard,size=150
-    - type=pd-standard,size=150
-    - type=pd-standard,size=150
+    - type=pd-balanced,size=150
+    - type=pd-balanced,size=150
+    - type=pd-balanced,size=150
   secretsProvider: k8s
   startPort: 17001
   stork:
