@@ -63,7 +63,7 @@ spec:
             - "$(DB_URL)"
       containers:
         - name: example-todo-app
-          image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
+          image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app:latest
           env:
             - name: DB_USERNAME
               valueFrom:
