@@ -13,5 +13,5 @@ spec:
     name: example-todo-app
     weight: 100
   tls:
+    insecureEdgeTerminationPolicy: Redirect
     termination: edge
-
