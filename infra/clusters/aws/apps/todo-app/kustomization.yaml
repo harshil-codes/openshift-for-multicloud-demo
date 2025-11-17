@@ -92,21 +92,10 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: example-todo-app
-  - target:
-      kind: Job
-      name: crdb-create-table
-      namespace: example-todo-app
-    patch: |-
-      apiVersion: batch/v1
-      kind: Job
-      metadata:
-        name: crdb-create-table
-        namespace: example-todo-app
-      spec:
-        template:
-          spec:
-            env:
-              - name: DB_TABLE_NAME
-                value: todos
-              - name: DB_TABLE_COLUMNS
-                value: "id UUID NOT NULL DEFAULT gen_random_uuid(), text TEXT, checked BOOLEAN"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          - name: DB_TABLE_NAME
+            value: todos
+          - name: DB_TABLE_COLUMNS
+            value: "id UUID NOT NULL DEFAULT gen_random_uuid(), text TEXT, checked BOOLEAN"
