@@ -12,6 +12,7 @@ spec:
   kvdb:
     internal: true
   cloudStorage:
+    provider: gce
     deviceSpecs:
     - type=pd-standard,size=150
     - type=pd-standard,size=150
