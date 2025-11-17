@@ -61,7 +61,7 @@ spec:
             - sh
             - -c
             - |-
-              env | grep DB
+              echo "url: $DB_URL"
               pg_isready --timeout 60s -d "$DB_URL"
       containers:
         - name: example-todo-app
