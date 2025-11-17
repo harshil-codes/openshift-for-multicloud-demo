@@ -63,7 +63,7 @@ spec:
             - |-
               echo "url: $DB_URL"
               getent hosts "$DB_HOST"
-              pg_isready --timeout 60s -d "$DB_URL"
+              pg_isready --timeout 120s -d "$DB_URL"
       containers:
         - name: example-todo-app
           image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
