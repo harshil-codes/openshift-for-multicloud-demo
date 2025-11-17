@@ -59,6 +59,16 @@ spec:
                 configMapKeyRef:
                   name: db-config
                   key: port
+            - name: DB_TABLE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: db-table-creation-settings
+                  key: DB_TABLE_NAME
+            - name: DB_TABLE_COLUMNS
+              valueFrom:
+                configMapKeyRef:
+                  name: db-table-creation-settings
+                  key: DB_TABLE_COLUMNS
           command:
             - sh
             - -c
