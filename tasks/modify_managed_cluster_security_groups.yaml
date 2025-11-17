@@ -74,6 +74,10 @@
     target_tags:
       - "{{ gcp_managed_cluster_id }}-control-plane"
       - "{{ gcp_managed_cluster_id }}-worker"
+  loop:
+    - "{{ common.datareplication.settings }}"
+    - "{{ common.database.settings }}"
+
 - name: Add AWS Security Group ingress rules
   amazon.aws.ec2_security_group:
     aws_access_key_id: "{{ aws_credentials.aws_access_key_id }}"
