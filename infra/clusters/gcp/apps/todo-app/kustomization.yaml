@@ -88,3 +88,4 @@ configMapGenerator:
     literals:
       - DB_TABLE_NAME=todos
       - DB_TABLE_COLUMNS="id UUID NOT NULL DEFAULT gen_random_uuid(), text TEXT, checked BOOLEAN"
+      - DB_TABLE_GRANT_ROLE=ALL
