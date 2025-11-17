@@ -486,9 +486,9 @@ metadata:
   name: db-credentials
   namespace: change-me
 data:
-  username: "$(base64 -w 0 <<< "$username" | tr -d '\n')"
-  password: "$(base64 -w 0 <<< "$password" | tr -d '\n')"
-  database: "$(base64 -w 0 <<< "$database" | tr -d '\n')"
+  username: "$(echo -n "$username" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
+  password: "$(echo -n "$password" | base64 -w 0)"
+  database: "$(echo -n "$database" | base64 -w 0)"
 EOF
 )"
     if test "$(yq -r .data <<< "$yaml")" == "null"

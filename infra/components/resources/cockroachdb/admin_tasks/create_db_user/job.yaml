@@ -63,18 +63,13 @@ spec:
             - sh
             - -c
             - |-
-              host=$(echo "$DB_HOST" | tr -d '\n')
-              port=$(echo "$DB_PORT" | tr -d '\n')
-              user=$(echo "$DB_USERNAME" | tr -d '\n')
-              password=$(echo "$DB_PASSWORD" | tr -d '\n')
-              existing_users=$(./cockroach sql \
-                --host "$host" \
-                --port "$port" \
+              ./cockroach sql \
+                --host "$DB_HOST" \
+                --port "$DB_PORT" \
                 --certs-dir /certs \
-                -e "SHOW USERS;" | grep -i "$user")
-              test -n "$existing_users"  && exit 0;
+                -e "SHOW USERS;" | grep -qi "$DB_USERNAME" && exit 0
                 ./cockroach sql \
-                  --host "$host" \
-                  --port "$port" \
+                  --host "$DB_HOST" \
+                  --port "$DB_PORT" \
                   --certs-dir /certs \
-                  -e "CREATE USER $user WITH PASSWORD '$password';"
+                  -e "CREATE USER $DB_USERNAME WITH PASSWORD '$DB_PASSWORD';"
