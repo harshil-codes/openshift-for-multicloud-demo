@@ -74,23 +74,21 @@
     target_tags:
       - "{{ gcp_managed_cluster_id }}-control-plane"
       - "{{ gcp_managed_cluster_id }}-worker"
-  loop:
-    - "{{ common.datareplication.settings }}"
-    - "{{ common.database.settings }}"
-
 - name: Add AWS Security Group ingress rules
-  loop: "{{ fw_rules }}"
   amazon.aws.ec2_security_group:
     aws_access_key_id: "{{ aws_credentials.aws_access_key_id }}"
     aws_secret_access_key: "{{ aws_credentials.aws_secret_access_key }}"
     aws_region: "{{ aws_region }}"
-    name: "{{ aws_sg_name }}-{{ item.name }}"
-    description: "Security groups for [{{ item.name }}] service between nodes"
+    name: "{{ aws_sg_name }}-{{ item.provider }}"
+    description: "Security groups for [{{ item.provider }}] service between nodes"
     vpc_id: "{{ aws_sg_vpc_id }}"
     rules:
       - group_id: "{{ aws_sg_id }}"
         ports: "{{ item.network.ports.tcp }}"
-        protocol: tcp
+        proto: tcp
       - group_id: "{{ aws_sg_id }}"
         ports: "{{ item.network.ports.udp }}"
-        protocol: tcp
+        proto: tcp
+  loop:
+    - "{{ common.datareplication.settings }}"
+    - "{{ common.database.settings }}"
