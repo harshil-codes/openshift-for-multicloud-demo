@@ -29,11 +29,33 @@ spec:
       initContainers:
         - name: wait-for-db-up
           env:
-            - name: DB_URL
+            - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
-                  key: url
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: database
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: port
+            - name: DB_URL
+              value: "postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
           image: docker.io/postgres
           command:
             - pg_isready
@@ -45,11 +67,33 @@ spec:
         - name: example-todo-app
           image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
           env:
-            - name: DB_URL
+            - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: db-credentials
-                  key: url
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: database
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: port
+            - name: DB_URL
+              value: "postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
           ports:
             - name: http
               protocol: TCP
