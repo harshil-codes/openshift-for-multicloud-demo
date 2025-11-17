@@ -58,11 +58,11 @@ spec:
               value: "postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
           image: docker.io/postgres
           command:
-            - pg_isready
-            - --timeout
-            - 60s
-            - -d
-            - "$DB_URL"
+            - sh
+            - -c
+            - |-
+              env | grep DB
+              pg_isready --timeout 60s -d "$DB_URL"
       containers:
         - name: example-todo-app
           image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
