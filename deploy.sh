@@ -488,7 +488,7 @@ metadata:
 data:
   username: "$(echo -n "$username" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
   password: "$(echo -n "$password" | base64 -w 0)"
-  database: "$(echo -n "$database" | base64 -w 0)"
+  database: "$(echo -n "$database" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
 EOF
 )"
     if test "$(yq -r .data <<< "$yaml")" == "null"
