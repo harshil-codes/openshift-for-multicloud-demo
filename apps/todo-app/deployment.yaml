@@ -56,7 +56,7 @@ spec:
                   key: port
             - name: DB_URL
               value: "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-          image: ghcr.io/cloudnative-pg/postgres-containers:15
+          image: ghcr.io/cloudnative-pg/postgresql:15
           command:
             - pg_isready
             - -d
