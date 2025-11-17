@@ -72,7 +72,7 @@ spec:
                 --host "$host" \
                 --port "$port" \
                 --certs-dir /certs \
-                -e "SHOW USERS;" | grep "$user")
+                -e "SHOW USERS;" | grep -i "$user")
               test -n "$existing_users"  && exit 0;
                 ./cockroach sql \
                   --host "$host" \
