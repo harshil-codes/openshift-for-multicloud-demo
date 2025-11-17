@@ -5,6 +5,7 @@ metadata:
   namespace: portworx
   annotations:
     portworx.io/is-openshift: "true"
+    portworx.io/misc-args: ' -T px-storev2 '
 spec:
   image: portworx/oci-monitor:3.4.1
   imagePullPolicy: Always
