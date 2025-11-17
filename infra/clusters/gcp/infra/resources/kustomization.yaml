@@ -3,8 +3,6 @@ kind: Kustomization
 resources:
   - secrets/portworx
   - ../../../../components/resources/portworx/storagecluster/gcp
-generators:
-  - ./credentials_generator.yaml
 patches:
   - target:
       kind: StorageCluster
