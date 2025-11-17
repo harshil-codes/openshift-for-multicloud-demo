@@ -24,11 +24,20 @@ common:
             provider: portworx
             network:
                 ports:
-                    - 7070
-                    - 8080
-                    - 8443
+                  tcp:
+                    - 2379
+                    - 9024
+                    - 12001
+                    - 12002
+                    - 17001-17004
+                    - 17009-17011
+                    - 17015-17016
+                    - 17018-17019
+                    - 17021
+                    - 20002
+                  up:
+                    - 9002
                     - 17002
-                    - 17016
                 # encrypted
                 object_store:
                     endpoint_url: ENC[AES256_GCM,data:gQlZygYiR1dOkcqfYylrrQ==,iv:Rlcg38Jcd1sVFX+XcrwyBL5a95UIkPPp8jrurtw2/dg=,tag:q9PPOjFGSrq116wN4edVyA==,type:str]

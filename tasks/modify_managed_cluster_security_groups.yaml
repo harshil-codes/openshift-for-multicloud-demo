@@ -65,7 +65,9 @@
       selfLink: "global/networks/{{ gcp_managed_cluster_network.name }}"
     allowed:
       - ip_protocol: tcp
-        ports: "{{ item.network.ports }}"
+        ports: "{{ item.network.ports.tcp }}"
+      - ip_protocol: udp
+        ports: "{{ item.network.ports.udp }}"
     source_tags:
       - "{{ gcp_managed_cluster_id }}-control-plane"
       - "{{ gcp_managed_cluster_id }}-worker"
@@ -87,4 +89,8 @@
     vpc_id: "{{ aws_sg_vpc_id }}"
     rules:
       - group_id: "{{ aws_sg_id }}"
-        ports: "{{ item.ports }}"
+        ports: "{{ item.network.ports.tcp }}"
+        protocol: tcp
+      - group_id: "{{ aws_sg_id }}"
+        ports: "{{ item.network.ports.udp }}"
+        protocol: tcp
