@@ -56,7 +56,7 @@ spec:
                   key: port
             - name: DB_URL
               value: "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-          image: docker.io/postgres
+          image: curlimages/curl
           command:
             - sh
             - -c
@@ -67,7 +67,6 @@ spec:
               getent hosts "$DB_HOST"
               curl google.com
               curl telnet://${DB_HOST}:${DB_PORT}
-              pg_isready --timeout 120s -d "$DB_URL"
       containers:
         - name: example-todo-app
           image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
