@@ -3,7 +3,6 @@ kind: Kustomization
 resources:
   - secrets/portworx
   - ../../../../components/resources/portworx/storagecluster/gcp
-  - ../../../../components/resources/cockroachdb/cluster/insecure
 generators:
   - ./credentials_generator.yaml
 patches:
