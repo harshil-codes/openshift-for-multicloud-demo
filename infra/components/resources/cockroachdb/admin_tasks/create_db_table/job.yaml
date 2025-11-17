@@ -76,5 +76,6 @@ spec:
               ./cockroach sql \
                 --host "$DB_HOST" \
                 --port "$DB_PORT" \
+                --database "$DB_NAME" \
                 --certs-dir /certs \
                 -e "CREATE TABLE IF NOT EXISTS $DB_TABLE_NAME ($DB_TABLE_COLUMNS)"
