@@ -56,17 +56,13 @@ spec:
                   key: port
             - name: DB_URL
               value: "postgres://$(DB_USERNAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-          image: nicolaka/netshoot
+          image: docker.io/postgres
           command:
             - sh
             - -c
             - |-
-              apt -y update
-              apt -y install curl
               echo "url: $DB_URL"
-              getent hosts "$DB_HOST"
-              curl google.com
-              nc -z "$DB_HOST" "$DB_PORT"
+              pg_isready --timeout 120s -d "$DB_URL"
       containers:
         - name: example-todo-app
           image: image-registry.openshift-image-registry.svc:5000/example-todo-app/example-todo-app
