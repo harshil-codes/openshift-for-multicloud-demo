@@ -74,11 +74,17 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: example-todo-app
+  - target:
+      kind: Job
+      name: crdb-create-table
+      namespace: change-me
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: example-todo-app
 configMapGenerator:
   - name: db-table-creation-settings
     namespace: example-todo-app
     literals:
-      - name: DB_TABLE_NAME
-        value: todos
-      - name: DB_TABLE_COLUMNS
-        value: "id UUID NOT NULL DEFAULT gen_random_uuid(), text TEXT, checked BOOLEAN"
+      - DB_TABLE_NAME=todos
+      - DB_TABLE_COLUMNS="id UUID NOT NULL DEFAULT gen_random_uuid(), text TEXT, checked BOOLEAN"

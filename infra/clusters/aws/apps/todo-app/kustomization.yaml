@@ -82,6 +82,14 @@ patches:
       - op: replace
         path: /metadata/namespace
         value: example-todo-app
+  - target:
+      kind: Job
+      name: crdb-create-table
+      namespace: change-me
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: example-todo-app
 configMapGenerator:
   - name: db-table-creation-settings
     namespace: example-todo-app
