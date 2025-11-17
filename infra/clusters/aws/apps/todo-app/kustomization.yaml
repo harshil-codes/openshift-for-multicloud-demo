@@ -5,7 +5,7 @@ resources:
   - ../../../../components/resources/cockroachdb/cluster/secure
   - ../../../../components/resources/cockroachdb/admin_tasks/create_database
   - ../../../../components/resources/cockroachdb/admin_tasks/create_db_user
-  - ../../../../components/resources/cockroachdb/admin_tasks/create_table
+  - ../../../../components/resources/cockroachdb/admin_tasks/create_db_table
 generators:
   - ./credentials_generator.yaml
 patches:
