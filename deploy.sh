@@ -26,7 +26,7 @@ ENVIRONMENT VARIABLES
   COMPOSE_BIN                 The binary to use for starting Compose services.
                               (You can also create a file called '$PWD/.compose_bin' to set this option.)
   CONTAINER_BIN               The binary to use for doing stuff in containers.
-                              (You can also create a file called '$PWD/.container.bin' to set this option.)
+                              (You can also create a file called '$PWD/.container_bin' to set this option.)
   CONTAINER_SOCK              The socket to use for communicating with the container engine.
                               (You can also create a file called '$PWD/.container.sock' to set this option.)
   CONTAINER_REGISTRIES_CONF   The file to use for registry configuration options.
@@ -137,7 +137,8 @@ deploy() {
   export CONTAINER_SOCK="$(_container_sock)"
   export CONTAINER_REGISTRIES_CONF="$(_container_registries_conf)"
   export CONTAINER_BIN="$(_container_bin)"
-  $cmd -e CLUSTER_KEY_FP=$(_cluster_pgp_key_fp) deploy |
+  export ANSIBLE_PLAYBOOK=deploy.yaml
+  $cmd -e CLUSTER_KEY_FP=$(_cluster_pgp_key_fp) ansible |
     grep --color=always -Ev '(^[a-z0-9]{64}$|openshift-for-multicloud)'
 }
 

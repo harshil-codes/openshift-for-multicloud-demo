@@ -2,7 +2,7 @@ volumes:
   ansible-data-vol:
     external: true
 services:
-  deploy:
+  ansible:
     depends_on:
       confirm_config_usable:
         condition: service_completed_successfully
@@ -28,7 +28,7 @@ services:
       - |-
         ansible-playbook --extra-vars '@/data/config.yaml' \
           --extra-vars cluster_key_fp=$CLUSTER_KEY_FP \
-          deploy.yaml |
+          "${ANSIBLE_PLAYBOOK}" |
           grep --color=always -Ev --line-buffered 'included: /work/tasks'
   confirm_config_usable:
     build:
