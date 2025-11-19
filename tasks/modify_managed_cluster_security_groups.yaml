@@ -91,11 +91,11 @@
       - group_id: "{{ aws_sg_id }}"
         ports: "{{ item.network.ports.tcp }}"
         proto: tcp
-        description: "portworx [tcp]"
+        rule_desc: "{{ item.provider }} [tcp]"
       - group_id: "{{ aws_sg_id }}"
         ports: "{{ item.network.ports.udp }}"
         proto: udp
-        description: "portworx [udp]"
+        rule_desc: "{{ item.provider }} [udp]"
   loop:
     - "{{ common.datareplication.settings }}"
     - "{{ common.database.settings }}"

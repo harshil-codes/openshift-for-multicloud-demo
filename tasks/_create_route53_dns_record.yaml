@@ -1,0 +1,10 @@
+---
+- amazon.aws.route53:
+    aws_access_key_id: "{{ common.dns.settings.credentials.access_key_id }}"
+    aws_secret_access_key: "{{ common.dns.settings.credentials.secret_access_key }}"
+    state: present
+    zone: "{{ common.dns.settings.domain_name }}"
+    record: "app.{{ common.dns.settings.domain_name  }}"
+    type: CNAME
+    value:
+      - "example-todo-app-example-todo-app.{{ cluster_hostname }}"
