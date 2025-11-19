@@ -39,6 +39,7 @@
 
 - name: Wait 10 minutes for app to become ready
   kubernetes.core.k8s_info:
+    kubeconfig: "{{ managed_cluster_kubeconfig_gcp }}"
     kind: Deployment
     name: "{{ app_name }}"
     namespace: "{{ app_namespace }}"
