@@ -1,0 +1,12 @@
+---
+- name: "[{{ item.cloud }}] Get cluster hostname"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ item.kubeconfig }}"
+    api_version: config.openshift.io/v1
+    kind: Ingress
+    name: cluster
+  register: data
+
+- set_fact:
+    "{{ item.cloud }}_cluster_hostname": "{{ data.resources[0].spec.domain }}"
+
