@@ -1,5 +1,7 @@
 ## OpenShift Multicloud Demo
 
+![](./static/images/acm-multicloud-architecture.png)
+
 This README will walk you through demonstrating how OpenShift, ACM, Portworx and CockroachDB
 simplifies multi-cloud disaster recovery by failing over a simple
 application between two clusters in separate cloud providers.
