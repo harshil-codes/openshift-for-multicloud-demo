@@ -105,9 +105,6 @@ spec:
           path: /metadata/name
           value: managed-cluster-gcp-operators
         - op: replace
-          path: /spec/template/metadata/annotations/apps.open-cluster-management.io~1ocm-managed-cluster
-          value: managed-cluster-gcp
-        - op: replace
           path: /spec/template/metadata/name
           value: managed-cluster-gcp-operators
         - op: replace

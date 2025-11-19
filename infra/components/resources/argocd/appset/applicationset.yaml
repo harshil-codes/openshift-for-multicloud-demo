@@ -14,7 +14,7 @@ spec:
   template:
     metadata:
       annotations:
-        apps.open-cluster-management.io/ocm-managed-cluster: managed-cluster-name
+        apps.open-cluster-management.io/ocm-managed-cluster: "{{name}}"
         apps.open-cluster-management.io/ocm-managed-cluster-app-namespace: openshift-gitops
       name: application-name
     spec:
