@@ -170,6 +170,7 @@ metadata:
   name: managed-cluster-gcp-apps
   namespace: flux-system
 spec:
+  suspend: true
   interval: 1m0s
   sourceRef:
     kind: GitRepository
