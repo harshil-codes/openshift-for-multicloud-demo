@@ -1,0 +1,33 @@
+---
+- name: Perform failover
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - set_fact:
+        primary_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'primary') | first }}"
+        backup_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'backup') | first }}"
+
+    - name: Wait for primary environment to become unavailable
+      include_tasks: tasks/wait_until_unavailable.yaml
+      vars:
+        env: "{{ primary_environment }}"
+
+    - name: Restore ACM configuration from primary environment into backup environment
+      include_tasks: tasks/restore_acm_configuration.yaml
+      vars:
+        env: "{{ backup_environment }}"
+
+    - name: Create apps within backup managed cluster
+      include_tasks: tasks/unsuspend_flux_kustomization.yaml
+      vars:
+        env: "{{ backup_environment }}"
+        kustomization_name: "managed-cluster-{{ backup_environment.name }}-apps"
+
+    - name: Update app DNS records
+      include_tasks: tasks/finalize_app_deployment.yaml
+      vars:
+        env: "{{ backup_environment }}"
+        app_name: example-todo-app
+        app_namespace: example-todo-app
+        failover_role: backup

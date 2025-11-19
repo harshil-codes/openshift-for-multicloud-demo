@@ -151,7 +151,7 @@ Run the deploy script
 
 ```sh
 # Add --help to see what else you can do with this script.
-deploy.sh --regenerate-secrets
+./deploy.sh --regenerate-secrets
 ```
 
 This will do the following:
@@ -178,10 +178,14 @@ This will do the following:
   pods to talk to each other across regions ([Ansible
   task](./tasks/modify_managed_cluster_security_groups.yaml)), and
 
-- Create a [cluster
+- Create a [Portworx cluster
   pair](https://docs.portworx.com/portworx-enterprise/3.3/operations/disaster-recovery/async-dr/generate-apply-clusterpair)
   between the managed clusters in AWS and GCP to enable near-zero RPO asynchronous replicated
   storage ([Ansible task](./tasks/create_px_async_cluster_pair.yaml)).
+
+- Create a failover CNAME DNS record in the AWS Route53 zone for the domain you
+  set the `common.dns.settings.domain_name` key to in your `config.yaml`
+  configuration file.
 
 ### Watching progress
 
@@ -218,57 +222,7 @@ flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-acm-mce         
 flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-config                         6d13h   True    Applied revision: refs
 /heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
 flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-operators-acm                  6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-operators-gitops               6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-operators-multiclusterengine   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-secrets-aws                    6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/cluster-secrets-gcp                    6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/dataprotection-app                     6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/dataprotection-secrets                 6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/gitops-cluster-aws                     6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/gitops-cluster-gcp                     6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/gitops-mcsb                            6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cloud-credential-secrets-aws   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cloud-credential-secrets-gcp   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-aws                    6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-aws-apps               6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-aws-gitops-placement   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-aws-operators          6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-aws-resources          6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-gcp                    6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-gcp-apps               6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-gcp-gitops-placement   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-gcp-operators          6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/managed-cluster-gcp-resources          6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/mch-backup-schedule                    6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/submariner-addon-aws                   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/submariner-addon-gcp                   6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
-flux-system   kustomization.kustomize.toolkit.fluxcd.io/submariner-broker                      6d13h   True    Applied revision: refs
-/heads/main@sha1:da287d3a66dd058bcc9b816bf1d90095c18b5cd4
+# rest of kustomizations truncated
 
 NAMESPACE             NAME                                                      INFRAID                     PLATFORM   REGION      VE
 RSION   CLUSTERTYPE   PROVISIONSTATUS   POWERSTATE                   AGE
@@ -281,44 +235,14 @@ NAMESPACE          NAME                                                    SYNC 
 openshift-gitops   application.argoproj.io/managed-cluster-aws-apps        Synced        Healthy
 openshift-gitops   application.argoproj.io/managed-cluster-aws-operators   Synced        Healthy
 openshift-gitops   application.argoproj.io/managed-cluster-aws-resources   Synced        Healthy
-openshift-gitops   application.argoproj.io/managed-cluster-gcp-apps        Synced        Healthy
 openshift-gitops   application.argoproj.io/managed-cluster-gcp-operators   Synced        Healthy
 openshift-gitops   application.argoproj.io/managed-cluster-gcp-resources   Synced        Healthy
 
 ```
 
-Afterwards, ArgoCD will provision the demo application and its CockroachDB database and
-Portworx storage into both managed clusters.
+#### Verify the deployment
 
-To see the status of these resources from the console UI:
-
-1. Click the tile menu on the upper-right corner, then click on "Cluster Argo
-   CD".
-
-![](./static/images/argocd-tile-menu.png)
-
-2. You should be able to see synced resources after logging in with OpenShift.
-
-![](./static/images/argocd-synced-applications.png)
-
-You're ready to go when all of the applications are in **Synced** and
-**Healthy** states.
-
-> **NOTE**: You can also see the status of these resources from the CLI by
-> running the command below.
->
-> ```sh
-> # change "aws" to "gcp" if you want to see how the managed cluster in GCP
-> # is progressing
-> cloud=aws
-> watch -n 0.5 kubectl --kubeconfig <(kubectl --kubeconfig /path/to/kubeconfig/for/primary/acm/hub \
->     get secret -n "managed-cluster-$cloud" -l hive.openshift.io/secret-type=kubeconfig \
->     -o jsonpath='{.items[0].data.raw-kubeconfig}' | base64 -d) \
->     get storagecluster,deployment -A -n example-todo-app
-> ```
-
-
-### 📝 Perform the demo
+##### ACM
 
 1. Get the routes for the OpenShift consoles in the primary and secondary ACM
    hubs:
@@ -336,7 +260,7 @@ echo "Backup: $console_backup"
    bucket created during deployment:
 
    ```sh
-   kubectl --kubeconfig .../hub get backups -A
+   kubectl --kubeconfig .../primary/acm/hub get backups -A
    ```
 
    You should see a list similar to the below:
@@ -348,6 +272,7 @@ echo "Backup: $console_backup"
    open-cluster-management-backup   acm-resources-generic-schedule-20251119004415   13h
    open-cluster-management-backup   acm-resources-schedule-20251119004415           13h
    open-cluster-management-backup   acm-validation-policy-schedule-20251119004415   13h
+   # more backups omitted
    ```
 
 3. Log into both OpenShift consoles. Change `local-cluster` to all clusters.
@@ -361,19 +286,73 @@ echo "Backup: $console_backup"
 
    ![](./static/images/backup_acm_hub_all_clusters.png)
 
+##### ArgoCD
 
-### 🛬 Tear everything down!
+1. In the primary ACM hub, click the tile menu on the upper-right corner, then
+   click on "Cluster Argo CD".
+
+    ![](./static/images/argocd-tile-menu.png)
+
+2. You should be able to see synced resources after logging in with OpenShift.
+
+    ![](./static/images/argocd_synced_applications.png)
+
+    You're ready to go when all of the applications are in **Synced** and
+    **Healthy** states.
+
+    (Notice how there the managed cluster in GCP **does not** have any applications
+    being synced into it. We will configure this when we simulate our failover.)
+
+### 📝 Run the demo
+
+#### Failing over
+
+##### Check out the example app
+
+Visit https://example-todo-app-example-todo-app.$YOUR_DOMAIN. You should see a
+simple to-do app.
+
+Create some todos. Cross out some others.
+
+##### Start the failover script
+
+Run the command below to initiate the failover:
+
+```sh
+./failover.sh
+```
+
+This will do the following:
+
+- Wait for you to "take down" a region, which you'll do in the next step,
+- Restore ACM configuration from your primary ACM hub into your backup hub,
+- Enable the ArgoCD application that synchronizes our example to-do app into your
+  "backup" managed cluster in GCP,
+- Re-point the `app.$YOUR_DOMAIN` DNS record created earlier to your backup
+  application.
+
+##### Take primary down!
+
+Pretty much the subject. Shutting down the EC2 nodes for your primary ACM hub
+and managed clusters is the fastest way to do this, but be as creative as you
+like!
+
+##### Wait for the failover to complete
+
+The failover script should start working a few seconds after your nodes go
+offline. The failover should take a minute or two to complete.
+
+##### Add more todos!
+
+Re-visit `app.$YOUR_DOMAIN`. Your todos should remain intact thanks to Portworx
+replicating your data behind the scenes. Add some more if you'd like!
+
+#### Failing back
 
 _Work in progress._
 
-### Customizations
+### 🛬 Tear everything down!
 
-#### Adding workers
+Run the below to delete the Flux Kustomizations on both clusters:
 
-You might need to add additional workers to your existing clusters depending on
-the app being demonstrated. To do that:
-
-1. In the `infra/cluster/aws/kustomization.yaml` file, add `- machinesets.yaml` to the `resources` property.
-2. Modify the YAML in the `patch` property within the `infra/cluster/aws/machinesets.yaml` file to
-   match your cluster's infrastructure ID and the networking/compute
-   configuration in your VPC.
+```
