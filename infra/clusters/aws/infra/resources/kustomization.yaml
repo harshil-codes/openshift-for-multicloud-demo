@@ -22,6 +22,9 @@ patches:
         path: /metadata/name
         value: example-todo-app
       - op: replace
+        path: /metadata/name
+        value: example-todo-app
+      - op: replace
         path: /spec/template/spec/namespaces
         value:
-          - example-tood-app
+          - example-todo-app
