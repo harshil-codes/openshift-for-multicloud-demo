@@ -7,3 +7,5 @@ spec:
   restoreSyncInterval: 1m
   cleanupBeforeRestore: CleanupRestored
   veleroManagedClustersBackupName: latest
+  veleroResourcesBackupName: latest
+  veleroCredentialsBackupName: latest
