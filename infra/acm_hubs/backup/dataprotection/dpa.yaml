@@ -31,10 +31,10 @@ spec:
           value: us-east-2
         - op: replace
           path: /spec/backupLocations/0/velero/config/bucket
-          value: 15kyfmfrrgm3-acm-hub-backups
+          value: 1jdigrzylmyo-acm-hub-backups
         - op: replace
           path: /spec/backupLocations/0/velero/objectStorage/bucket
-          value: 15kyfmfrrgm3-acm-hub-backups
+          value: 1jdigrzylmyo-acm-hub-backups
         - op: replace
           path: /spec/snapshotLocations/0/velero/config/region
           value: us-east-2
