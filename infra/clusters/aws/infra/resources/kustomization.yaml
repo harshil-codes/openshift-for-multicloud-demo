@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - secrets/portworx
   - ../../../../components/resources/portworx/storagecluster/aws
+  - ../../../../components/resources/portworx/migrationschedule
 patches:
   - target:
       kind: StorageCluster
@@ -12,3 +13,15 @@ patches:
       - op: replace
         path: /metadata/name
         value: aws-sc
+  - target:
+      kind: MigrationSchedule
+      name: change-me
+      namespace: portworx
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: example-todo-app
+      - op: replace
+        path: /spec/template/spec/namespaces
+        value:
+          - example-tood-app
