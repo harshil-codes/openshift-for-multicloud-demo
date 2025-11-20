@@ -1,0 +1,18 @@
+---
+apiVersion: stork.libopenstorage.org/v1alpha1
+kind: MigrationSchedule
+metadata:
+  name: change-me
+  namespace: portworx
+spec:
+  template:
+    spec:
+      clusterPair: cluster-pair
+      includeResources: true
+      startApplications: false
+      includeVolumes: true
+      namespaces:
+      - change-me
+  schedulePolicyName: px-schedule-policy
+  suspend: false
+  autoSuspend: true
