@@ -2,7 +2,7 @@
 - set_fact:
     failover_role: "{{ env.acm_config.role }}"
     cloud: "{{ env.name }}"
-    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_{{ env.name }}'] }}"
+    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + env.name'] }}"
 
 - name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Gather cluster hostnames"
   include_tasks: tasks/_get_cluster_hostname.yaml
