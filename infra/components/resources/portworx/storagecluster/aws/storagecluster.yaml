@@ -48,4 +48,4 @@ spec:
       valueFrom:
         secretKeyRef:
           name: portworx-saas-key
-          key: saas-key
+          key: saas_key
