@@ -1,0 +1,16 @@
+---
+- name: "[{{ env.name }}] Checking for package '{{ item.name }}' in source '{{ item.catalog }}'"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ env.cluster.kubeconfig }}"
+    api_version: packages.operators.coreos.com/v1
+    kind: packagemanifest
+    name: "{{ item.name }}"
+    namespace: openshift-marketplace
+  register: result
+
+- fail:
+    msg: "'{{ item.name }}' is not available in catalog '{{ item.catalog }}'"
+  when: |-
+    result.resources is not defined or
+    result.resources | length == 0 or
+    result.resources[0].metadata.labels['catalog'] != item.catalog
