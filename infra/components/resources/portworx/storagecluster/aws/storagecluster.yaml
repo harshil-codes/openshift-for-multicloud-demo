@@ -44,3 +44,8 @@ spec:
         secretKeyRef:
           name: cloud-creds
           key: aws_secret_access_key
+    - name: SAAS_ACCOUNT_KEY_STRING
+      valueFrom:
+        secretKeyRef:
+          name: portworx-saas-key
+          key: saas-key

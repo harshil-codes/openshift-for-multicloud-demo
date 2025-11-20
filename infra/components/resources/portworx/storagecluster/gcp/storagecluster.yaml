@@ -40,3 +40,8 @@ spec:
   env:
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: /secrets/cloud/osServiceAccount.json
+    - name: SAAS_ACCOUNT_KEY_STRING
+      valueFrom:
+        secretKeyRef:
+          name: portworx-saas-key
+          key: saas-key

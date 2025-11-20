@@ -518,6 +518,39 @@ EOF
       "$yaml"
   }
 
+  _write_portworx_license_secret() {
+    local yaml
+    license_key=$(sops decrypt --extract \
+        '["common"]["datareplication"]["settings"]["credentials"]["license_key"]' \
+        "$CONFIG_YAML_PATH")
+    yaml="$(cat <<-EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: portworx-saas-key
+  namespace: portworx
+data:
+  saas_key: "$(echo -n "$license_key" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
+EOF
+)"
+    if test "$(yq -r .data <<< "$yaml")" == "null"
+    then
+      >&2 echo "ERROR: Couldn't generate database secret creds"
+      return 1
+    fi
+    secret_dir="$(dirname "$0")/infra/secrets/datareplication"
+    test -d "$secret_dir" || mkdir -p "$secret_dir"
+    cat >"$secret_dir/kustomization.yaml" <<-EOF
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- credential.yaml
+EOF
+    _encrypt_file_if_pgp_fp_differs_from_cluster_pgp_fp \
+      "$secret_dir/credential.yaml" \
+      '.sops.pgp[0].fp' \
+      "$yaml"
+  }
   _write_cluster_sops_config_if_pgp_fp_changed
   _write_pull_secret_if_pgp_fp_changed
   _write_cloud_secret_if_pgp_fp_changed 'aws'
@@ -527,6 +560,7 @@ EOF
   _write_ssh_key_secret
   _write_installconfig_cloud_secrets 'aws' 'gcp'
   _write_database_secret
+  _write_portworx_license_secret
   _update_secrets_kustomization_yaml
 }
 
