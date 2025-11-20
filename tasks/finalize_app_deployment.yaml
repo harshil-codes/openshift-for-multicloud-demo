@@ -1,33 +1,26 @@
 ---
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Gather managed cluster kubeconfigs"
-  include_tasks: tasks/_get_managed_cluster_kubeconfig.yaml
-  register: kubeconfigs
-  vars:
+- set_fact:
+    failover_role: "{{ env.acm_config.role }}"
     cloud: "{{ env.name }}"
+    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_{{ env.name }}'] }}"
 
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Bail out if a kubeconfig is missing"
-  fail:
-    msg: "Kubeconfig not found for environment '{{ env.name }}'"
-  when: vars[env.name] is not defined
-
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Gather cluster hostnames"
+- name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Gather cluster hostnames"
   include_tasks: tasks/_get_cluster_hostname.yaml
   vars:
-    cloud: "{{ env.name }}"
+    cloud: "{{ cloud }}"
 
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Bail out if a hostname is missing"
-  fail:
-    msg: "One of these hostnames couldn't be resolved -- aws: {{ aws_cluster_hostname }}, gcp: {{ gcp_cluster_hostname }}"
-  when: aws_cluster_hostname is not defined or gcp_cluster_hostname is not defined
+- fail:
+    msg: "Couldn't retrieve the default hostname for the ACM hub in cloud '{{ cloud }}'"
+  when: vars['{{ cloud }}_cluster_hostname'] is not defined
 
 - set_fact:
-    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + env.name] }}"
-    cluster_hostname: "{{ vars[env.name + '_cluster_hostname'] }}"
+    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + cloud] }}"
+    cluster_hostname: "{{ vars[cloud + '_cluster_hostname'] }}"
 
 - set_fact:
     record_value: "{{ app_name }}-{{ app_namespace }}.{{ cluster_hostname }}"
 
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Wait 10 minutes for app to become ready"
+- name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Wait 10 minutes for app to become ready"
   kubernetes.core.k8s_info:
     kubeconfig: "{{ managed_cluster_kubeconfig }}"
     kind: Deployment
@@ -41,7 +34,7 @@
       reason: MinimumReplicasAvailable
   
 
-- name: "[failover_role: {{ env.acm_config.role }}, cloud: {{ env.name }}] Create Route53 record for the app and point it to the primary app"
+- name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Create or update DNS record for app"
   amazon.aws.route53:
     aws_access_key_id: "{{ common.dns.settings.credentials.access_key_id }}"
     aws_secret_access_key: "{{ common.dns.settings.credentials.secret_access_key }}"

@@ -1,5 +1,5 @@
 ---
-- name: "[managed-cluster-{{ item.cloud }}] Confirm that there's at least one ready Portworx API service"
+- name: "[{{ item.cloud }}] Confirm that there's at least one ready Portworx API service"
   register: eps
   kubernetes.core.k8s_info:
     kubeconfig: "{{ item.kubeconfig }}"

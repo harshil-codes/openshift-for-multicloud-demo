@@ -27,19 +27,46 @@
       loop_control:
         loop_var: env
 
-    - include_tasks: tasks/wait_until_managed_clusters_ready.yaml
+    - include_tasks: tasks/wait_until_managed_cluster_ready.yaml
       vars:
-        env: "{{ primary_environment }}"
+        acm_hub_env: "{{ primary_environment }}"
+        cloud: "{{ item }}"
+      loop: "{{ environments | map(attribute='name') }}"
+
+    - name: Fail if a managed cluster didn't become ready in time
+      fail:
+        msg: "The managed cluster in cloud '{{ item }}' failed to become ready in time"
+      when: vars['managed_cluster_{{ item }}_ready'] is not defined
+      loop: "{{ environments | map(attribute='name') }}"
+
+    - name: Gather managed cluster kubeconfigs
+      include_tasks: tasks/_get_managed_cluster_kubeconfig.yaml
+      register: kubeconfigs
+      vars:
+        acm_hub_env: "{{ primary_environment }}"
+      loop: "{{ environments | map(attribute='name') }}"
+      loop_control:
+        loop_var: cloud
+
+    - name: Bail if a managed cluster kubeconfig is missing
+      fail:
+        msg: "Managed cluster kubeconfig not found for '{{ item }}'"
+      when: vars['managed_cluster_kubeconfig_' + item] is not defined
+      loop: "{{ environments | map(attribute='name') }}"
 
     - include_tasks: tasks/modify_managed_cluster_security_groups.yaml
 
     - include_tasks: tasks/create_px_async_cluster_pair.yaml
       vars:
-        env: "{{ primary_environment }}"
+        source:
+          cloud: "{{ primary_environment.name }}"
+          kubeconfig: vars['managed_cluster_kubeconfig_{{ primary_environment.name }}']
+        destination:
+          cloud: "{{ backup_environment.name }}"
+          kubeconfig: vars['managed_cluster_kubeconfig_{{ backup_environment.name }}']
 
     - include_tasks: tasks/finalize_app_deployment.yaml
       vars:
         env: "{{ primary_environment }}"
         app_name: example-todo-app
         app_namespace: example-todo-app
-        failover_role: primary

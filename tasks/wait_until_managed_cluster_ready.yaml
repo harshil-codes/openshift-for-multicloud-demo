@@ -1,0 +1,22 @@
+---
+- set_fact:
+    managed_cluster_name: 'managed_cluster_{{ cloud }}'
+
+- name: "Wait for '{{ managed_cluster_name }}' to become ready"
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ acm_hub_env.kubeconfig }}"
+    kind: ClusterDeployment
+    namespace: "{{ managed_cluster_name }}"
+    label_selectors:
+      - 'hive.openshift.io/cluster-platform = {{ cloud }}'
+    wait: yes
+    wait_sleep: 5
+    wait_timeout: "{{ wait_timeout_secs | default(600) }}"
+    wait_condition:
+      type: Ready
+      status: True
+    register: result
+
+- set_fact:
+    "managed_cluster_{{ cloud }}_ready": true
+  when: result.resources | length > 0
