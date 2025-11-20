@@ -1,57 +1,133 @@
 ---
-- name: Check Portworx API endpoint availability
-  include_tasks: tasks/_confirm_px_api_endpoints_available.yaml
-  loop:
-    - "{{ source }}"
-    - "{{ destination }}"
+- name: Check if ClusterPair already exists on the source cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ source.kubeconfig }}"
+    api_version: stork.libopenstorage.org/v1alpha1
+    kind: ClusterPair
+    namespace: portworx
+    name: cluster-pair
+  register: results
 
-- fail:
-    msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
-  when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
-  loop:
-    - "{{ source }}"
-    - "{{ destination }}"
+- debug:
+    msg: "results: {{ results }}"
 
-- name: Create cluster pair
-  block:
-    - set_fact:
-        vol_name: px-cluster-pair-secrets
-        px_stork_image: docker.io/openstorage/stork:25.4.1
+- block:
+  - name: Check Portworx API endpoint availability
+    include_tasks: tasks/_confirm_px_api_endpoints_available.yaml
+    loop:
+      - "{{ source }}"
+      - "{{ destination }}"
 
-    - name: Create secrets container vol
-      shell: "$CONTAINER_BIN volume create {{ vol_name }}"
+  - fail:
+      msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
+    when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
+    loop:
+      - "{{ source }}"
+      - "{{ destination }}"
 
-    - name: Write cluster kubeconfigs to container vol
-      shell: |-
-        echo "{{ item.kubeconfig | b64encode }}" |
-          base64 -d |
-          $CONTAINER_BIN run --rm -i -v "{{ vol_name }}:/secrets" docker.io/bash:5 -c 'cat - > /secrets/{{ item.file_name }}_kubeconfig'
-      loop:
-        - file_name: src
+  - name: Get portworx-api external endpoint IPs
+    include_tasks: tasks/_get_pxapi_service_lb_ip.yaml
+    loop:
+      - type: source
+        kubeconfig: "{{ source.kubeconfig }}"
+      - type: destination
+        kubeconfig: "{{ destination.kubeconfig }}"
+
+  - fail:
+      msg: "Source or destination Portworx API IP missing"
+    when: source_pxapi_ip is not defined or destination_pxapi_ip is not defined
+    
+
+  - name: Create cluster pair
+    block:
+      - set_fact:
+          vol_name: px-cluster-pair-secrets
+          px_stork_image: docker.io/openstorage/stork:25.4.1
+
+      - name: Store Kubeconfigs as secrets in the portworx namespace
+        kubernetes.core.k8s:
           kubeconfig: "{{ source.kubeconfig }}"
-        - file_name: dst
-          kubeconfig: "{{ destination.kubeconfig }}"
-    - name: Generate Portworx cluster pair
-      shell: |-
-        $CONTAINER_BIN run --rm --platform=linux/amd64 \
-          -e KUBECONFIG=/secrets/src_kubeconfig \
-          --name px-create-cluster-pair \
-          --entrypoint /storkctl/linux/storkctl \
-          -v "{{ vol_name }}:/secrets" \
-          {{ px_stork_image }} create clusterpair cluster-pair-aws-gcp \
-            --namespace portworx \
-            --src-kube-file /secrets/src_kubeconfig \
-            --dest-kube-file /secrets/dst_kubeconfig \
-            --provider s3 \
-            --s3-endpoint "{{ common.datareplication.settings.object_store.endpoint_url }}" \
-            --s3-access-key "{{ common.datareplication.settings.object_store.access_key_id }}" \
-            --s3-secret-key "{{ common.datareplication.settings.object_store.secret_access_key }}" \
-            --s3-region "{{ common.datareplication.settings.object_store.region }}" \
-            --v=9
+          state: present
+          definition:
+            apiVersion: v1
+            kind: Secret
+            metadata:
+              name: storkctl-kubeconfigs
+              namespace: portworx
+            data:
+              source: "{{ source.kubeconfig | b64encode }}"
+              destination: "{{ destination.kubeconfig | b64encode }}"
 
-    - name: Mark that cluster pair has been created successfully
-      set_fact:
-        cluster_pair_created: true
-  rescue:
-    - name: Remove secrets container vol
-      shell: "$CONTAINER_BIN volume rm -f {{ vol_name }}"
+      - name: Generate Portworx cluster pair pod and wait 30 seconds for completion
+        kubernetes.core.k8s:
+          state: present
+          kubeconfig: "{{ source.kubeconfig }}"
+          wait: true
+          wait_timeout: 30
+          wait_condition:
+            type: Initialized
+            status: "True"
+            reason: PodCompleted
+          definition:
+            apiVersion: v1
+            kind: Pod
+            metadata:
+              name: storkctl-create-cluster-pair
+              namespace: portworx
+              labels:
+                job: storkctl-create-cluster-pair
+            spec:
+              volumes:
+                - name: kubeconfigs
+                  secret:
+                    secretName:  storkctl-kubeconfigs
+              restartPolicy: Never
+              containers:
+                - image: "{{ px_stork_image }}"
+                  name: do-it
+                  volumeMounts:
+                    - name: kubeconfigs
+                      mountPath: /kubeconfigs
+                  command:
+                    - sh
+                    - -c
+                    - |-
+                        /storkctl/linux/storkctl create clusterpair cluster-pair \
+                          --namespace portworx \
+                          --src-ep "{{ source_pxapi_ip }}:9001" \
+                          --dest-ep "{{ destination_pxapi_ip }}:9001" \
+                          --src-kube-file /kubeconfigs/source \
+                          --dest-kube-file /kubeconfigs/destination \
+                          --provider s3 \
+                          --s3-endpoint "{{ common.datareplication.settings.object_store.endpoint_url }}" \
+                          --s3-access-key "{{ common.datareplication.settings.object_store.access_key_id }}" \
+                          --s3-secret-key "{{ common.datareplication.settings.object_store.secret_access_key }}" \
+                          --s3-region "{{ common.datareplication.settings.object_store.region }}" \
+                          --v=9
+        register: result
+
+      - debug:
+          msg: "result: {{ result }}"
+
+      - name: Mark that cluster pair has been created successfully
+        set_fact:
+          cluster_pair_created: true
+        when: not result.failed
+    always:
+      - name: Remove storkctl Pod
+        kubernetes.core.k8s:
+          kubeconfig: "{{ source.kubeconfig }}"
+          state: absent
+          api_version: v1
+          kind: Pod
+          name: storkctl-create-cluster-pair
+          namespace: portworx
+      - name: Remove kubeconfig secret
+        kubernetes.core.k8s:
+          kubeconfig: "{{ source.kubeconfig }}"
+          state: absent
+          api_version: v1
+          kind: Secret
+          name: storkctl-kubeconfigs
+          namespace: portworx
+  when: results.resources | length == 0

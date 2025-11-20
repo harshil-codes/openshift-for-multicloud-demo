@@ -1,0 +1,25 @@
+---
+- name: Get portworx-api service
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ item.kubeconfig }}"
+    api_version: v1
+    kind: Service
+    name: portworx-api
+    namespace: portworx
+  register: result
+
+- fail:
+    msg: "portworx-api at {{ item.type }} cluster is not externally accessible yet"
+  when: |-
+    result.resources is not defined or
+    result.resources | length == 0 or
+    result.resources[0].status.loadBalancer.ingress is not defined
+
+- set_fact:
+    "{{ item.type }}_pxapi_ip": "{{ result.resources[0].status.loadBalancer.ingress[0].ip }}"
+  when: result.resources[0].status.loadBalancer.ingress[0].ip is defined
+
+- name: Resolve load balancer IP
+  set_fact:
+    "{{ item.type }}_pxapi_ip": "{{ lookup('community.general.dig', result.resources[0].status.loadBalancer.ingress[0].hostname + '.') | split(',') | first }}"
+  when: result.resources[0].status.loadBalancer.ingress[0].hostname is defined
