@@ -39,3 +39,19 @@ spec:
   path: ./infra/components/resources/acm/managedclusterset
   wait: true
   prune: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: cluster-acm-restore-from-primary
+  namespace: flux-system
+spec:
+  suspend: true
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: cluster-config
+    namespace: flux-system
+  path: ./infra/components/resources/acm/restore
+  wait: true
+  prune: true
