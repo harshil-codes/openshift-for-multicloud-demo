@@ -12,6 +12,7 @@ spec:
   kvdb:
     internal: true
   cloudStorage:
+    provider: aws
     deviceSpecs:
     - type=gp3,size=50
     - type=gp3,size=50
