@@ -48,7 +48,7 @@ patches:
           labels:
             failure-domain.beta.kubernetes.io/zone: us-east-2c
       - op: add
-        path: /spec/dataStore/pvc
+        path: /spec/dataStore/pvc/spec
         value:
           storageClassName: px-csi-db
   - target:
