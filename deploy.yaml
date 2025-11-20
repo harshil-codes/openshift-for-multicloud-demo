@@ -12,6 +12,7 @@
       loop: "{{ environments }}"
       loop_control:
         loop_var: env
+      when: skip_preflight is not defined or skip_preflight == ""
 
     - include_tasks: tasks/create_backup_s3_bucket.yaml
       vars:

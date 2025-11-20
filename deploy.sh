@@ -19,6 +19,7 @@ OPTIONS
   --secrets-only           Only refresh the secrets in the cluster config directory.
   --kustomizations-only    Refresh secrets and managed cluster kustomizations.
   --repo-urls-only         Refresh secrets and repo URLs in GitOpsServer resources.
+  --skip-preflight         Live dangerously and skip preflight checks
 
 ENVIRONMENT VARIABLES
 
@@ -138,8 +139,14 @@ deploy() {
   export CONTAINER_REGISTRIES_CONF="$(_container_registries_conf)"
   export CONTAINER_BIN="$(_container_bin)"
   export ANSIBLE_PLAYBOOK=deploy.yaml
-  $cmd -e CLUSTER_KEY_FP=$(_cluster_pgp_key_fp) ansible |
-    grep --color=always -Ev '(^[a-z0-9]{64}$|openshift-for-multicloud)'
+  $cmd -e CLUSTER_KEY_FP=$(_cluster_pgp_key_fp) \
+       ansible |
+       grep --color=always -Ev '(^[a-z0-9]{64}$|openshift-for-multicloud)'
+}
+
+deploy_skip_preflight() {
+  export SKIP_PREFLIGHT=true
+  deploy
 }
 
 preflight() {
@@ -637,6 +644,10 @@ refresh_repo_urls_only() {
   grep -Eq -- '--repo-urls-only' <<< "$@"
 }
 
+skip_preflight_checks() {
+  grep -Eq -- '--skip-preflight' <<< "$@"
+}
+
 set -e
 show_help_if_requested "$@"
 preflight || exit 1
@@ -667,4 +678,7 @@ fi
 
 create_data_volume
 upload_config_into_data_volume
-deploy
+if skip_preflight_checks "$@"
+then deploy_skip_preflight
+else deploy
+fi

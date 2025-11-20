@@ -23,11 +23,13 @@ services:
       - CONTAINER_BIN
       - CONTAINER_HOST=unix:///container_engine.sock
       - DOCKER_HOST=unix:///container_engine.sock
+      - SKIP_PREFLIGHT
     command:
       - -c
       - |-
         ansible-playbook --extra-vars '@/data/config.yaml' \
           --extra-vars cluster_key_fp=$CLUSTER_KEY_FP \
+          --extra-vars skip_preflight=$SKIP_PREFLIGHT \
           "${ANSIBLE_PLAYBOOK}" |
           grep --color=always -Ev --line-buffered 'included: /work/tasks'
   confirm_config_usable:
