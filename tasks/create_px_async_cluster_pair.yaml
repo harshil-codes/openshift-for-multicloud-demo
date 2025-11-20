@@ -7,7 +7,7 @@
 
 - fail:
     msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
-  when: vars['api_endpoints_ready_{{ item.cloud }}'] is not defined or vars['api_endpoints_ready_{{ item.cloud }}'] | int == 0
+  when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
   loop:
     - "{{ source }}"
     - "{{ destination }}"
@@ -48,6 +48,10 @@
             --s3-secret-key "{{ common.datareplication.settings.object_store.secret_access_key }}" \
             --s3-region "{{ common.datareplication.settings.object_store.region }}" \
             --v=9
+
+    - name: Mark that cluster pair has been created successfully
+      set_fact:
+        cluster_pair_created: true
   rescue:
     - name: Remove secrets container vol
       shell: "$CONTAINER_BIN volume rm -f {{ vol_name }}"

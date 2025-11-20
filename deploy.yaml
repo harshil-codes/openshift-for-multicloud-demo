@@ -61,10 +61,14 @@
       vars:
         source:
           cloud: "{{ primary_environment.name }}"
-          kubeconfig: vars['managed_cluster_kubeconfig_{{ primary_environment.name }}']
+          kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + primary_environment.name] }}"
         destination:
           cloud: "{{ backup_environment.name }}"
-          kubeconfig: vars['managed_cluster_kubeconfig_{{ backup_environment.name }}']
+          kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + backup_environment.name] }}"
+
+    - fail:
+        msg: "Cluster pair not created successfully"
+      when: cluster_pair_created is not defined
 
     - include_tasks: tasks/finalize_app_deployment.yaml
       vars:
