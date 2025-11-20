@@ -45,8 +45,9 @@ kind: Kustomization
 metadata:
   name: cluster-acm-restore-from-primary
   namespace: flux-system
+annotation:
+  kustomize.toolkit.fluxcd.io/reconcile: disabled
 spec:
-  suspend: true
   interval: 1m0s
   sourceRef:
     kind: GitRepository
