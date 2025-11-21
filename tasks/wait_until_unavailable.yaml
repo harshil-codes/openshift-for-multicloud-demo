@@ -1,0 +1,12 @@
+---
+- name: Wait for ACM hub to go down
+  shell: |-
+    while true
+    do
+      if ! curl -sS -o /dev/null {{ env.cluster.console_url }}
+      then
+        >&2 echo "INFO: Primary ACM hub no longer available!"
+        exit 0
+      fi
+      sleep 1
+    done
