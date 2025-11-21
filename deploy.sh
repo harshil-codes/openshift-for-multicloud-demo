@@ -255,6 +255,7 @@ metadata:
   labels:
     cluster.open-cluster-management.io/type: "$1"
     cluster.open-cluster-management.io/credentials: ""
+    cluster.open-cluster-management.io/backup: ""
 data: $(sops decrypt --output-type=json --extract '["environments"]' "$CONFIG_YAML_PATH" |
   jq --arg cloud "$1" -r '.[]|select(.name == $cloud)|.cloud_config.credentials|map_values(@base64)')
 EOF
@@ -295,6 +296,7 @@ metadata:
   labels:
     cluster.open-cluster-management.io/type: "$1"
     cluster.open-cluster-management.io/credentials: ""
+    cluster.open-cluster-management.io/backup: ""
 data:
   cloud: $(sops decrypt --extract \
       '["common"]["dataprotection"]["settings"]["aws"]["credentials_file"]' \
@@ -337,6 +339,8 @@ kind: Secret
 metadata:
   name: cluster-ssh-key
   namespace: replace-me
+  labels:
+    cluster.open-cluster-management.io/backup: ""
 type: Opaque
 data:
   ssh-privatekey: $(_ssh_private_key | base64 -w 0)
@@ -419,6 +423,8 @@ kind: Secret
 metadata:
   name: installconfig
   namespace: replace-me
+  labels:
+    cluster.open-cluster-management.io/backup: ""
 data:
   install-config.yaml: $(base64 -w 0 < "$template_f")
 YAML
@@ -465,6 +471,7 @@ metadata:
   namespace: openshift-gitops
   labels:
     argocd.argoproj.io/secret-type: repository
+    cluster.open-cluster-management.io/backup: ""
 type: Opaque
 stringData:
   type: git
@@ -493,6 +500,7 @@ kind: Secret
 metadata:
   name: db-credentials
   namespace: change-me
+  cluster.open-cluster-management.io/backup: ""
 data:
   username: "$(echo -n "$username" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
   password: "$(echo -n "$password" | base64 -w 0)"
