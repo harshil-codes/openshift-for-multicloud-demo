@@ -8,21 +8,40 @@
         primary_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'primary') | first }}"
         backup_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'backup') | first }}"
 
+    # Manually stop the primary ACM hub and the managed cluster in AWS.
+    # Since they are in the same region, this is more-or-less the same as
+    # simulating a regional outage.
     - name: Wait for primary environment to become unavailable
       include_tasks: tasks/wait_until_unavailable.yaml
       vars:
         env: "{{ primary_environment }}"
 
-    - name: Restore ACM configuration from primary environment into backup environment
-      include_tasks: tasks/restore_acm_configuration.yaml
-      vars:
-        env: "{{ backup_environment }}"
+    - name: Pause all Flux kustomizations in the backup ACM hub
+      shell: |-
+        oc --kubeconfig=<(echo "{{ backup_environment.cluster.kubeconfig }}") get -n flux-system kustomization -o name |
+          grep -v cluster-config |
+          xargs -I {} oc --kubeconfig=<(echo "{{ backup_environment.cluster.kubeconfig }}") patch \
+            -n flux-system {} \
+            --type merge \
+            --patch '{"spec":{"suspend":true}}'
 
-    - name: Create apps within backup managed cluster
-      include_tasks: tasks/unsuspend_flux_kustomization.yaml
-      vars:
-        env: "{{ backup_environment }}"
-        kustomization_name: "managed-cluster-{{ backup_environment.name }}-apps"
+    - name: Kick off an ACM Restore
+      kubernetes.core.k8s_json_patch:
+        kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
+        namespace: flux-system
+        name: cluster-acm-restore-from-primary
+        patch:
+          - op: remove
+            path: /spec/suspend
+
+    - name: Enable app deployment into backup managed cluster
+      kubernetes.core.k8s_json_patch:
+        kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
+        namespace: flux-system
+        name: managed-cluster-gcp-apps
+        patch:
+          - op: remove
+            path: /spec/suspend
 
     - name: Update app DNS records
       include_tasks: tasks/finalize_app_deployment.yaml
@@ -30,4 +49,3 @@
         env: "{{ backup_environment }}"
         app_name: example-todo-app
         app_namespace: example-todo-app
-        failover_role: backup
