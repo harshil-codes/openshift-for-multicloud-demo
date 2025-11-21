@@ -7,6 +7,13 @@
     name: portworx-api
     namespace: portworx
   register: result
+  retries: 30
+  delay: 2
+  until: |-
+    result.resources is defined and
+    result.resources | length > 0 and
+    result.resources[0].status.loadBalancer.ingress is defined
+
 
 - fail:
     msg: "portworx-api at {{ item.type }} cluster is not externally accessible yet"

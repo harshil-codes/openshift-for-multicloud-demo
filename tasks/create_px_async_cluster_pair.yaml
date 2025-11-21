@@ -8,8 +8,10 @@
     name: cluster-pair
   register: results
 
-- debug:
-    msg: "results: {{ results }}"
+- name: Mark that cluster pair has been created successfully
+  set_fact:
+    cluster_pair_created: true
+  when: results.resources | length > 0
 
 - block:
   - name: Check Portworx API endpoint availability

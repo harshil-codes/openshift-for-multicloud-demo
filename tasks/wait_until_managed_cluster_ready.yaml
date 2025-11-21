@@ -2,7 +2,7 @@
 - set_fact:
     managed_cluster_name: 'managed-cluster-{{ cloud }}'
 
-- name: "Wait for '{{ managed_cluster_name }}' to become ready in ACM hub '{{ acm_hub_env.name }}"
+- name: "Wait for '{{ managed_cluster_name }}' to become ready in ACM hub '{{ acm_hub_env.name }}'"
   kubernetes.core.k8s_info:
     kubeconfig: "{{ acm_hub_env.cluster.kubeconfig }}"
     kind: ClusterDeployment

@@ -2,23 +2,23 @@
 - set_fact:
     failover_role: "{{ env.acm_config.role }}"
     cloud: "{{ env.name }}"
-    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + env.name'] }}"
+    managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + env.name] }}"
 
 - name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Gather cluster hostnames"
-  include_tasks: tasks/_get_cluster_hostname.yaml
+  include_tasks: tasks/_get_cluster_router_ip_address.yaml
   vars:
-    cloud: "{{ cloud }}"
+    item:
+      cloud: "{{ cloud }}"
+      kubeconfig: "{{ managed_cluster_kubeconfig }}"
+    
 
 - fail:
-    msg: "Couldn't retrieve the default hostname for the ACM hub in cloud '{{ cloud }}'"
-  when: vars['{{ cloud }}_cluster_hostname'] is not defined
+    msg: "Couldn't retrieve the default IP address for the managed cluster in cloud '{{ cloud }}'"
+  when: vars['{{ cloud }}_cluster_router_ip_address'] is not defined
 
 - set_fact:
     managed_cluster_kubeconfig: "{{ vars['managed_cluster_kubeconfig_' + cloud] }}"
-    cluster_hostname: "{{ vars[cloud + '_cluster_hostname'] }}"
-
-- set_fact:
-    record_value: "{{ app_name }}-{{ app_namespace }}.{{ cluster_hostname }}"
+    router_ip_address: "{{ vars[cloud + '_cluster_router_ip_address'] }}"
 
 - name: "[failover_role: {{ failover_role }}, cloud: {{ cloud }}] Wait 10 minutes for app to become ready"
   kubernetes.core.k8s_info:
@@ -41,6 +41,6 @@
     state: present
     zone: "{{ common.dns.settings.domain_name }}"
     record: "app.{{ common.dns.settings.domain_name  }}"
-    type: CNAME
+    type: A
     value:
-      - "{{ record_value }}"
+      - "{{ router_ip_address }}"
