@@ -690,9 +690,33 @@ skip_preflight_checks() {
   grep -Eq -- '--skip-preflight' <<< "$@"
 }
 
+update_dataprotection_buckets() {
+  local bucket_name bucket_name file bucket new_file
+  bucket_name="$(sops decrypt --extract '["common"]["dataprotection"]["settings"]["aws"]["bucket"]["key"]' "$CONFIG_YAML_PATH")"
+  grep -r -A 1 objectStorage/bucket "$PWD/infra" |
+    grep value |
+    while read -r line
+    do
+      file=$(awk '{print $1}' <<< "$line" | sed -E 's/-$//')
+      bucket=$(awk -F':' '{print $NF}' <<< "$line")
+      new_file=$(sed -E "s/value:.*$bucket/value: $bucket_name/g" "$file")
+      echo "$new_file" > "$file"
+    done
+}
+
+update_app_route_hostnames() {
+  local domain_name new_route
+  domain_name="$(sops decrypt --extract '["common"]["dns"]["settings"]["domain_name"]' "$CONFIG_YAML_PATH")"
+  hostname="app.${domain_name}"
+  new_route="$(sed -E "s/hostname.*/hostname: $hostname/" "$PWD/apps/todo-app/route.yaml")"
+  echo "$new_route" > "$PWD/apps/todo-app/route.yaml"
+}
+
 set -e
 show_help_if_requested "$@"
 preflight || exit 1
+update_dataprotection_buckets
+update_app_route_hostnames
 secrets_regeneration_requested "$@" && REGENERATE_SECRETS=true
 generate_cluster_secrets
 if refresh_secrets_only "$@"
