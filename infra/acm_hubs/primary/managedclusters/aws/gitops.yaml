@@ -168,8 +168,7 @@ spec:
           value: managed-cluster-aws
         - op: add
           path: /spec/template/spec/syncPolicy/syncOptions/-
-          value:
-            - SkipDryRunOnMissingResource=true
+          value: SkipDryRunOnMissingResource=true
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
