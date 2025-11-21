@@ -708,7 +708,7 @@ update_app_route_hostnames() {
   local domain_name new_route
   domain_name="$(sops decrypt --extract '["common"]["dns"]["settings"]["domain_name"]' "$CONFIG_YAML_PATH")"
   hostname="app.${domain_name}"
-  new_route="$(sed -E "s/hostname.*/hostname: $hostname/" "$PWD/apps/todo-app/route.yaml")"
+  new_route="$(sed -E "s/host.*/host: $hostname/" "$PWD/apps/todo-app/route.yaml")"
   echo "$new_route" > "$PWD/apps/todo-app/route.yaml"
 }
 
