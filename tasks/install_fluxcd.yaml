@@ -35,7 +35,7 @@
         namespace: flux-system
       spec:
         channel: stable
-        name: flux-operator
+        name: flux
         source: community-operators
         sourceNamespace: openshift-marketplace
         config:
