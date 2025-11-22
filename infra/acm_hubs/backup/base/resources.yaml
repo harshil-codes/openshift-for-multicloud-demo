@@ -55,3 +55,23 @@ spec:
   path: ./infra/components/resources/acm/restore
   wait: true
   prune: true
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: gitops-secrets
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  sourceRef:
+    kind: GitRepository
+    name: cluster-config
+    namespace: flux-system
+  path: ./infra/secrets/gitops
+  wait: true
+  prune: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: cluster-key
+
