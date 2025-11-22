@@ -61,6 +61,12 @@ _container_bin() {
   echo "$CONTAINER_BIN"
 }
 
+_cluster_pgp_key_fp() {
+  gpg --show-keys --with-colons <(sops decrypt --extract \
+    '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
+    "$CONFIG_YAML_PATH") | grep -m 1 fpr | rev | cut -f2 -d ':' | rev
+}
+
 _container_sock() {
   if test -f "$PWD/.container_sock"
   then
@@ -154,12 +160,6 @@ preflight() {
 }
 
 generate_cluster_secrets() {
-  _cluster_pgp_key_fp() {
-    gpg --show-keys --with-colons <(sops decrypt --extract \
-      '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
-      config.yaml) | grep -m 1 fpr | rev | cut -f2 -d ':' | rev
-  }
-
   _cluster_pull_secret() {
     sops decrypt --extract '["common"]["ocp_pull_secret"]' "$CONFIG_YAML_PATH"
   }
@@ -459,7 +459,7 @@ YAML
       >&2 echo "ERROR: SSH private key for GitOps repo [$url] is not defined."
       return 1
     fi
-    secret_fp="$(dirname "$0")/infra/secrets/argocd.yaml"
+    secret_fp="$(dirname "$0")/infra/secrets/gitops/argocd.yaml"
     _encrypt_file_if_pgp_fp_differs_from_cluster_pgp_fp \
       "$secret_fp" \
       '.sops.pgp[0].fp' \
@@ -559,6 +559,33 @@ EOF
       '.sops.pgp[0].fp' \
       "$yaml"
   }
+  _write_gitops_secrets() {
+    local yaml
+    sops_cluster_key=$(sops decrypt --extract \
+        '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
+        "$CONFIG_YAML_PATH")
+    yaml="$(cat <<-EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cluster-key
+  namespace: openshift-gitops
+data:
+  sops.asc: "$(echo -n "$sops_cluster_key" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
+EOF
+)"
+    if test "$(yq -r .data <<< "$yaml")" == "null"
+    then
+      >&2 echo "ERROR: Couldn't generate GitOps cluster secret creds"
+      return 1
+    fi
+    secret_dir="$(dirname "$0")/infra/secrets/gitops"
+    test -d "$secret_dir" || mkdir -p "$secret_dir"
+    _encrypt_file_if_pgp_fp_differs_from_cluster_pgp_fp \
+      "$secret_dir/cluster_key.yaml" \
+      '.sops.pgp[0].fp' \
+      "$yaml"
+  }
   _write_cluster_sops_config_if_pgp_fp_changed
   _write_pull_secret_if_pgp_fp_changed
   _write_cloud_secret_if_pgp_fp_changed 'aws'
@@ -569,6 +596,7 @@ EOF
   _write_installconfig_cloud_secrets 'aws' 'gcp'
   _write_database_secret
   _write_portworx_license_secret
+  _write_gitops_secrets
   _update_secrets_kustomization_yaml
 }
 
