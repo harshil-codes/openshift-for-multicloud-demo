@@ -8,6 +8,7 @@
         primary_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'primary') | first }}"
         backup_environment: "{{ environments | selectattr('acm_config.role', 'equalto', 'backup') | first }}"
 
+
     # Manually stop the primary ACM hub and the managed cluster in AWS.
     # Since they are in the same region, this is more-or-less the same as
     # simulating a regional outage.
@@ -37,7 +38,7 @@
           apiVersion: cluster.open-cluster-management.io/v1beta1
           kind: Restore
           metadata:
-            name: "acm-restore-{{ lookup('community.general.random_string', length=12) }}"
+            name: "acm-restore-{{ lookup('community.general.random_string', length=12, special=false, upper=false) }}"
             namespace: open-cluster-management-backup
           spec:
             restoreSyncInterval: 1m
@@ -46,24 +47,13 @@
             veleroResourcesBackupName: latest
             veleroCredentialsBackupName: latest
 
-      kubernetes.core.k8s_json_patch:
-        kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
-        namespace: flux-system
-        kind: Kustomization
-        name: cluster-acm-restore-from-primary
-        patch:
-          - op: remove
-            path: /spec/suspend
-
-    - name: Enable app deployment into backup managed cluster
-      kubernetes.core.k8s_json_patch:
-        kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
-        namespace: flux-system
-        name: managed-cluster-gcp-apps
-        kind: Kustomization
-        patch:
-          - op: remove
-            path: /spec/suspend
+    - name: Wait for managed clusters to come back up again
+      include_tasks: tasks/wait_until_managed_cluster_ready.yaml
+      vars:
+        acm_hub_env: "{{ backup_environment }}"
+        cloud: "{{ item }}"
+        wait_timeout_secs: 600
+      loop: "{{ environments | map(attribute='name') }}"
 
     - name: Gather managed cluster kubeconfigs
       include_tasks: tasks/_get_managed_cluster_kubeconfig.yaml
