@@ -6,5 +6,6 @@
     zone: "{{ common.dns.settings.domain_name }}"
     record: "app.{{ common.dns.settings.domain_name  }}"
     type: CNAME
+    overwrite: "{{ overwrite | default(false) }}"
     value:
       - "example-todo-app-example-todo-app.{{ cluster_hostname }}"

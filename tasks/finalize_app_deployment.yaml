@@ -42,5 +42,6 @@
     zone: "{{ common.dns.settings.domain_name }}"
     record: "app.{{ common.dns.settings.domain_name  }}"
     type: A
+    overwrite: "{{ overwrite | default(false) }}"
     value:
       - "{{ router_ip_address }}"
