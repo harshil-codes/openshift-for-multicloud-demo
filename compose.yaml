@@ -12,6 +12,7 @@ services:
     volumes:
       - ansible-data-vol:/data
       - $PWD/deploy.yaml:/work/deploy.yaml
+      - $PWD/failover.yaml:/work/failover.yaml
       - $PWD/tasks:/work/tasks
       - "$CONTAINER_SOCK:/container_engine.sock"
     working_dir: /work

@@ -4,6 +4,7 @@ CONTAINER_BIN="${CONTAINER_BIN:-podman}"
 COMPOSE_FILE="${COMPOSE_FILE:-compose.yaml}"
 COMPOSE_BIN="${COMPOSE_BIN:-podman-compose}"
 CONTAINER_SOCK="${CONTAINER_SOCK:-/var/run/podman/podman.sock}"
+CONFIG_YAML_PATH="$(dirname "$0")/config.yaml"
 
 usage() {
   cat <<-EOF
@@ -22,6 +23,11 @@ ENVIRONMENT VARIABLES
 EOF
 }
 
+_cluster_pgp_key_fp() {
+  gpg --show-keys --with-colons <(sops decrypt --extract \
+    '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
+    "$CONFIG_YAML_PATH") | grep -m 1 fpr | rev | cut -f2 -d ':' | rev
+}
 _compose_bin() {
   if test -f "$PWD/.compose_bin"
   then

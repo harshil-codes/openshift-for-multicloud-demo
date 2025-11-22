@@ -18,17 +18,22 @@
 
     - name: Pause all Flux kustomizations in the backup ACM hub
       shell: |-
-        oc --kubeconfig=<(echo "{{ backup_environment.cluster.kubeconfig }}") get -n flux-system kustomization -o name |
+        echo "{{ backup_environment.cluster.kubeconfig }}" > /tmp/kubeconfig
+        oc --kubeconfig=/tmp/kubeconfig get -n flux-system kustomization -o name |
           grep -v cluster-config |
-          xargs -I {} oc --kubeconfig=<(echo "{{ backup_environment.cluster.kubeconfig }}") patch \
+          xargs -I {} oc --kubeconfig=/tmp/kubeconfig patch \
             -n flux-system {} \
             --type merge \
             --patch '{"spec":{"suspend":true}}'
+        rc=$?
+        rm /tmp/kubeconfig
+        exit $rc
 
     - name: Kick off an ACM Restore
       kubernetes.core.k8s_json_patch:
         kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
         namespace: flux-system
+        kind: Kustomization
         name: cluster-acm-restore-from-primary
         patch:
           - op: remove
@@ -39,9 +44,24 @@
         kubeconfig: "{{ backup_environment.cluster.kubeconfig }}"
         namespace: flux-system
         name: managed-cluster-gcp-apps
+        kind: Kustomization
         patch:
           - op: remove
             path: /spec/suspend
+
+    - name: Gather managed cluster kubeconfigs
+      include_tasks: tasks/_get_managed_cluster_kubeconfig.yaml
+      register: kubeconfigs
+      vars:
+        acm_hub_env: "{{ backup_environment }}"
+        cloud: gcp
+
+    - name: Bail if a managed cluster kubeconfig is missing
+      fail:
+        msg: "Managed cluster kubeconfig not found for '{{ item }}'"
+      when: vars['managed_cluster_kubeconfig_' + item] is not defined
+      loop:
+        - gcp
 
     - name: Update app DNS records
       include_tasks: tasks/finalize_app_deployment.yaml
@@ -49,3 +69,4 @@
         env: "{{ backup_environment }}"
         app_name: example-todo-app
         app_namespace: example-todo-app
+        overwrite: true
