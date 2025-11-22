@@ -571,7 +571,7 @@ metadata:
   name: cluster-key
   namespace: openshift-gitops
 data:
-  sops.asc: "$(echo -n "$sops_cluster_key" | tr '[:upper:]' '[:lower:]' | base64 -w 0)"
+  sops.asc: "$(echo -n "$sops_cluster_key" | base64 -w 0)"
 EOF
 )"
     if test "$(yq -r .data <<< "$yaml")" == "null"
