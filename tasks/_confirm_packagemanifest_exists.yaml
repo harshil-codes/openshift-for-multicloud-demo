@@ -4,8 +4,8 @@
     kubeconfig: "{{ env.cluster.kubeconfig }}"
     api_version: packages.operators.coreos.com/v1
     kind: packagemanifest
-    name: "{{ item.name }}"
-    namespace: openshift-marketplace
+    label_selectors:
+      - "catalog: {{ item.catalog }}"
   register: result
 
 - fail:
@@ -13,4 +13,4 @@
   when: |-
     result.resources is not defined or
     result.resources | length == 0 or
-    result.resources[0].metadata.labels['catalog'] != item.catalog
+    result.resources | selectattr('metadata.name', 'equalto', item.name) | length == 0
