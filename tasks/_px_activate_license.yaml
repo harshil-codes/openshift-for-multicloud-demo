@@ -1,0 +1,20 @@
+---
+- name: Get a Portworx CSI Pod to use for activation
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ kubeconfig }}"
+    kind: Pod
+    namespace: portworx
+    label_selectors:
+      - name = portworx
+  register: result
+
+- fail:
+    msg: "Portworx CSI pod not found"
+  when: result.resources | length == 0
+
+- name: Activate the license
+  kubernetes.core.k8s_exec:
+    kubeconfig: "{{ kubeconfig }}"
+    namespace: portworx
+    pod: "{{ result.resources[0].metadata.name }}"
+    command: /opt/pwx/bin/pxctl license activate saas --key "{{ license_key }}"

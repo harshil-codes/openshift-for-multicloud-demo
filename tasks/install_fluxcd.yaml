@@ -17,10 +17,6 @@
     flux_package: flux-operator
   when: cluster_version is version('4.20', '<')
 
-- set_fact:
-    flux_package: flux
-  when: cluster_version is version('4.20', '>=')
-
 - name: "[{{ env.name }}] Create flux-system namespace"
   kubernetes.core.k8s:
     state: present

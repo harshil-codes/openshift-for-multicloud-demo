@@ -1,4 +1,26 @@
 ---
+- name: Get cluster version
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+    kind: ClusterVersion
+    name: version
+  register: result
+
+- set_fact:
+    cluster_version: "{{ result.resources[0].spec.channel | split('-') | last }}"
+
+
+- set_fact:
+    flux_package: flux
+  when: cluster_version is version('4.20', '>=')
+
+- set_fact:
+    flux_package: flux-operator
+  when: cluster_version is version('4.20', '<')
+
+- set_fact:
+    cluster_version: "{{ result.resources[0].spec.channel | split('-') | last }}"
+
 - name: "[{{ env.name }}] PREFLIGHT: List nodes to confirm connectivity to cluster"
   kubernetes.core.k8s_info:
     api_version: v1
@@ -12,7 +34,7 @@
 
 - include_tasks: tasks/_confirm_packagemanifest_exists.yaml
   loop:
-    - name: flux-operator
+    - name: "{{ flux_package }}"
       catalog: community-operators
     - name: portworx-certified
       catalog: certified-operators
