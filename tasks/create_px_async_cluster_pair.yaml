@@ -43,7 +43,7 @@
     register: result
     shell: >-
       f=$(mktemp /tmp/kubeconfig-XXXXXXXX)
-      echo "{{ source_kubeconfig }}" > "$f"
+      echo "{{ source.kubeconfig }}" > "$f"
       kubectl --kubeconfig "$f" get pod -l name=portworx -n portworx -o name |
         head -1 |
         xargs -I {} kubectl --kubeconfig "$f" exec -n portworx {} -- \
@@ -74,12 +74,12 @@
               source: "{{ source.kubeconfig | b64encode }}"
               destination: "{{ destination.kubeconfig | b64encode }}"
 
-      - name: Generate Portworx cluster pair pod and wait 30 seconds for completion
+      - name: Generate Portworx cluster pair pod and wait 120 seconds for completion
         kubernetes.core.k8s:
           state: present
           kubeconfig: "{{ source.kubeconfig }}"
           wait: true
-          wait_timeout: 30
+          wait_timeout: 120
           wait_condition:
             type: Initialized
             status: "True"
