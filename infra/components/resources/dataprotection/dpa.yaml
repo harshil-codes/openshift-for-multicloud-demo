@@ -20,7 +20,7 @@ spec:
           prefix: velero
         provider: aws
   configuration:
-    restic:
+    nodeAgent:
       enable: true
     velero:
       defaultPlugins:
