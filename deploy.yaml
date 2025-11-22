@@ -32,6 +32,7 @@
       vars:
         acm_hub_env: "{{ primary_environment }}"
         cloud: "{{ item }}"
+        wait_timeout_secs: 3600
       loop: "{{ environments | map(attribute='name') }}"
 
     - name: Fail if a managed cluster didn't become ready in time
