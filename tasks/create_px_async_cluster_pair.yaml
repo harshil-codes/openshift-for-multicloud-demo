@@ -39,6 +39,20 @@
       msg: "Source or destination Portworx API IP missing"
     when: source_pxapi_ip is not defined or destination_pxapi_ip is not defined
     
+  - name: Activate license
+    register: result
+    shell: >-
+      f=$(mktemp /tmp/kubeconfig-XXXXXXXX)
+      echo "{{ source_kubeconfig }}" > "$f"
+      kubectl --kubeconfig "$f" get pod -l name=portworx -n portworx -o name |
+        head -1 |
+        xargs -I {} kubectl --kubeconfig "$f" exec -n portworx {} -- \
+            /opt/pwx/bin/pxctl license activate saas "{{ common.datareplication.settings.credentials.license_key }}"
+
+  - fail:
+      msg: "Couldn't activate Portworx license"
+    when: result.rc != 0
+
 
   - name: Create cluster pair
     block:
