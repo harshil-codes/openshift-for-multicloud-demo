@@ -106,7 +106,7 @@
 - set_fact:
     aws_submariner_sg_name: "{{ aws_cluster_id }}-submariner-gw-sg"
 
-- name: "[BUGFIX] Add 'owned' tag to submariner group '{{ aws_submariner_sg_name }}'"
+- name: "[BUGFIX] Add 'owned' tag to submariner group '{{ aws_submariner_sg_name }}' for ID {{ aws_cluster_id }}"
   amazon.aws.ec2_security_group:
     aws_access_key_id: "{{ aws_credentials.aws_access_key_id }}"
     aws_secret_access_key: "{{ aws_credentials.aws_secret_access_key }}"
@@ -115,5 +115,4 @@
     description: "Submariner gateway"
     vpc_id: "{{ aws_sg_vpc_id }}"
     purge_rules: false
-    tags:
-        "kubernetes.io/cluster/{{ aws_cluster_id }}": owned
+    tags: "{{ { 'kubernetes.io/cluster/' + aws_cluster_id: 'owned' } }}"
