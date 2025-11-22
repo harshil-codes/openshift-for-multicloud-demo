@@ -67,7 +67,7 @@ spec:
       patch: |-
         - op: replace
           path: /spec/baseDomain
-          value: sfzv2.gcp.redhatworkshops.io
+          value: 2vjfk.gcp.redhatworkshops.io
         - op: replace
           path: /metadata/name
           value: managed-cluster-gcp
