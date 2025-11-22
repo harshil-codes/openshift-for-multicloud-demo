@@ -208,6 +208,8 @@ kind: Secret
 metadata:
   name: ocp-pull-secret
   namespace: replace-me
+  labels:
+    cluster.open-cluster-management.io/backup: ""
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: $(_cluster_pull_secret | base64 -w 0)
