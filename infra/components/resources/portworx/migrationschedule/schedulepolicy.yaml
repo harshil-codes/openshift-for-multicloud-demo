@@ -4,4 +4,4 @@ metadata:
   name: px-schedule-policy 
 policy:
   interval:
-    intervalMinutes: 1
+    intervalMinutes: 15
