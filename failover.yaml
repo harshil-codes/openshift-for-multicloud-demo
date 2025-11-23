@@ -77,6 +77,16 @@
       loop:
         - gcp
 
+    - name: Scale app replicas back up (if needed)
+      debug:
+        msg: "todo"
+
+    # WARNING: DO NOT DO THIS IN PRODUCTION!
+    # (You will make ALL of your users admins of your ArgoCD cluster!)
+    - name: "[HACK] Add system:authenticated to argocd-rbac-cm Argo RBAC policy (Dex workaround)"
+      debug:
+        msg: "todo"
+
     - name: Update app DNS records
       include_tasks: tasks/finalize_app_deployment.yaml
       vars:
