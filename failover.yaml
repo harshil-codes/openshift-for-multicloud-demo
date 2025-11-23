@@ -30,6 +30,14 @@
         rm /tmp/kubeconfig
         exit $rc
 
+    - name: Failover Portworx volumes
+      debug:
+        msg: "todo"
+
+    - name: Scale up the CockroachDB StatefulSet (which was scaled down by Portworx)
+      debug:
+          msg: "todo"
+
     - name: Kick off an ACM Restore
       kubernetes.core.k8s:
         state: present

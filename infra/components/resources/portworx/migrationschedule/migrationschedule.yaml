@@ -5,14 +5,20 @@ metadata:
   name: change-me
   namespace: portworx
 spec:
+  schedulePolicyName: px-schedule-policy
+  suspend: false
+  autoSuspend: true
   template:
     spec:
       clusterPair: cluster-pair
       includeResources: true
       startApplications: false
       includeVolumes: true
+      excludeResourceTypes:
+        - ClusterServiceVersion
+        - operatorconditions
+        - OperatorGroup
+        - InstallPlan
+        - Subscription
       namespaces:
       - change-me
-  schedulePolicyName: px-schedule-policy
-  suspend: false
-  autoSuspend: true
