@@ -31,10 +31,10 @@ spec:
           value: us-east-2
         - op: replace
           path: /spec/backupLocations/0/velero/config/bucket
-          value: n0jokf8duavt-acm-hub-backups
+          value: nmzja7zco2zh-acm-hub-backups
         - op: replace
           path: /spec/backupLocations/0/velero/objectStorage/bucket
-          value: n0jokf8duavt-acm-hub-backups
+          value: nmzja7zco2zh-acm-hub-backups
         - op: replace
           path: /spec/snapshotLocations/0/velero/config/region
           value: us-east-2

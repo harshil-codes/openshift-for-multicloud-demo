@@ -353,6 +353,12 @@ _Work in progress._
 
 ### 🛬 Tear everything down!
 
-Run the below to delete the Flux Kustomizations on both clusters:
+Run the command below to delete the Flux Kustomizations on both clusters. Doing
+this will uninstall the ACM and GitOps operators and delete both of the managed
+clusters you created earlier.
 
 ```
+./teardown.sh
+```
+
+## Concepts
