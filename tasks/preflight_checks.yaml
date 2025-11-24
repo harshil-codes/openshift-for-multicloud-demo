@@ -9,7 +9,6 @@
 - set_fact:
     cluster_version: "{{ result.resources[0].spec.channel | split('-') | last }}"
 
-
 - set_fact:
     flux_package: flux
   when: cluster_version is version('4.20', '>=')
