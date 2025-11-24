@@ -5,7 +5,7 @@
     api_version: packages.operators.coreos.com/v1
     kind: packagemanifest
     label_selectors:
-      - "catalog: {{ item.catalog }}"
+      - "catalog={{ item.catalog }}"
   register: result
 
 - fail:
