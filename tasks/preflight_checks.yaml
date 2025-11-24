@@ -17,19 +17,6 @@
     flux_package: flux-operator
   when: cluster_version is version('4.20', '<')
 
-- set_fact:
-    cockroachdb_package: cockroachdb
-    cockroachdb_catalog: community-operators
-  when: cluster_version is version('4.20', '>=')
-
-- set_fact:
-    cockroachdb_package: cockroachdb-certified
-    cockroachdb_catalog: certified-operators
-  when: cluster_version is version('4.20', '<')
-
-- set_fact:
-    cluster_version: "{{ result.resources[0].spec.channel | split('-') | last }}"
-
 - name: "[{{ env.name }}] PREFLIGHT: List nodes to confirm connectivity to cluster"
   kubernetes.core.k8s_info:
     api_version: v1
@@ -45,10 +32,6 @@
   loop:
     - name: "{{ flux_package }}"
       catalog: community-operators
-    - name: portworx-certified
-      catalog: certified-operators
-    - name: "{{ cockroachdb_package }}"
-      catalog: "{{ cockroachdb_catalog }}"
     - name: advanced-cluster-management
       catalog: redhat-operators
     - name: openshift-gitops-operator
