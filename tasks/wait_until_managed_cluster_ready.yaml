@@ -2,6 +2,8 @@
 - set_fact:
     managed_cluster_name: 'managed-cluster-{{ cloud }}'
 
+# HACK: This seems to exit prematurely when you're creating a cluster from nothing.
+# Do this twice until I figure out why.
 - name: "Wait for '{{ managed_cluster_name }}' to become ready in ACM hub '{{ acm_hub_env.name }}'"
   kubernetes.core.k8s_info:
     kubeconfig: "{{ acm_hub_env.cluster.kubeconfig }}"
@@ -16,6 +18,10 @@
       reason: Running
       status: "True"
   register: result
+  retries: 2
+  delay: 5
+  until: result.resources | length > 0
+
 
 - set_fact:
     "managed_cluster_{{ cloud }}_ready": true
