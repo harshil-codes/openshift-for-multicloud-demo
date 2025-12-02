@@ -1,4 +1,17 @@
 ---
+- name: Check Portworx API endpoint availability
+  include_tasks: tasks/_confirm_px_api_endpoints_available.yaml
+  loop:
+    - "{{ source }}"
+    - "{{ destination }}"
+
+- fail:
+    msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
+  when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
+  loop:
+    - "{{ source }}"
+    - "{{ destination }}"
+
 - name: Activate licenses
   include_tasks: tasks/_px_activate_license.yaml
   vars:
@@ -29,19 +42,6 @@
   when: results.resources | length > 0
 
 - block:
-  - name: Check Portworx API endpoint availability
-    include_tasks: tasks/_confirm_px_api_endpoints_available.yaml
-    loop:
-      - "{{ source }}"
-      - "{{ destination }}"
-
-  - fail:
-      msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
-    when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
-    loop:
-      - "{{ source }}"
-      - "{{ destination }}"
-
   - name: Get portworx-api external endpoint IPs
     include_tasks: tasks/_get_pxapi_service_lb_ip.yaml
     loop:

@@ -12,9 +12,15 @@
     msg: "Portworx CSI pod not found"
   when: result.resources | length == 0
 
+# It takes some time for the API to become ready enough to accept licenses. Retry a few times in the
+# hope that it does.
 - name: Activate the license
+  register: result
   kubernetes.core.k8s_exec:
     kubeconfig: "{{ kubeconfig }}"
     namespace: portworx
     pod: "{{ result.resources[0].metadata.name }}"
     command: /opt/pwx/bin/pxctl license activate saas --key "{{ license_key }}"
+  retries: 10
+  delay: 6
+  until: not result.failed
