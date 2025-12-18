@@ -2,18 +2,78 @@
 
 ![](./static/images/acm-multicloud-architecture.png)
 
-This README will walk you through demonstrating how OpenShift, ACM, Portworx and CockroachDB
-simplifies multi-cloud disaster recovery by failing over a simple
-application between two clusters in separate cloud providers.
+In this demo, you'll explore how the OpenShift Container Platform, Red Hat
+Advanced Cluster Management, Portworx Enterprise and CockroachDB work together
+to seamlessly fail over applications and infrastructure across clouds.
 
 Contact anyone in the [MAINTAINERS](./MAINTAINERS) file if you have questions
-or need help!
+or need help.
 
+- [Concepts](#concepts)
 - [Setting up](#setting-up)
 - [Deploy!](#deploy-the-environment)
 - [Run the demo](#run-the-demo)
 - [Teardown](#teardown)
-- [Demo Concepts](#demo-concepts)
+
+## Concepts
+
+> ✅ Skip to the ["Setting Up"](#setting-up) section if you want to start building.
+
+### Abstract
+
+![](./static/images/concepts.png)
+
+Cloud platforms and cloud-native services have long enabled businesses to scale
+their operations and "excite and delight" their customers with incredible speed
+and efficiency.
+
+They are not a panacea, however. This operational convenience comes at the cost
+of platform and economic lock-in, singluar points of failure that require
+additional engineering complexity to hedge against.  Unfortunately, companies
+usually scramble frantically into performing this work after large
+cloud-provider outages spark multi-million dollar business downtime.
+
+Moreover, there is increasing pressure from regulators, like the European
+Banking Authority and the UK FCA, for financial services providers to document
+and test their "cloud exit" resiliency plans. Implementational differences
+between cloud services, like clients of AWS Neptune vs Azure Cosmos, can make
+complying with these regulations appear insurmountable.
+
+Standardizing on open-source and container-native technologies substantially
+solves these concerns. Platforms composed of open-source software frameworks and
+tooling that run atop of a Kubernetes distribution, such as Red Hat OpenShift
+Container Platform, give businesses more agility during industry-decimating
+cloud outages, more leverage against unexpected price increases, and more
+control over their data and privacy.
+
+### Architecture
+
+![](./static/images/architecture.png)
+
+The architecture in this demo, shown above, describes one implementation of such
+a platform.
+
+In this implementation, applications are served out of two OpenShift clusters
+across two clouds and accessed through DNS records served by a third party (1️⃣).
+While AWS and Google Cloud are used in this demo environment, these can be on
+any two cloud providers, on-premise datacenters or homelabs.
+
+Applications are managed by GitOps through ArgoCD (2️⃣).  As this demo will illustrate,
+cluster administrators and platform engineers can use GitOps to install,
+configure and scale cluster components and their applications entirely with Git.
+This approach simplifies operations while increasing auditability and
+transparency.
+
+The OpenShift clusters hosting the applications (3️⃣)  are provisioned by the
+Multicluster Engine component of Red Hat Advanced Cluster Management (ACM) (4️⃣). ACM
+provides a control plane for Kubernetes clusters, OpenShift or not. It enables
+centralized cluster security, application management through ArgoCD and more.
+
+Portworx Enterprise and CockroachDB provide replicated storage and database
+across the two clusters (5️⃣). Both of these products make configuring replication
+fast and simple. This enables applications to continue operations during outages
+with a minimal RTO and small RPO, as we'll see in this demo when we "obliterate"
+AWS and failover into Google Cloud.
 
 ## Setting up
 
@@ -360,5 +420,3 @@ clusters you created earlier.
 ```
 ./teardown.sh
 ```
-
-## Concepts
