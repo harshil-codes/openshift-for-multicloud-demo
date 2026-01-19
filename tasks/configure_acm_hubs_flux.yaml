@@ -1,0 +1,114 @@
+---
+- name: Get cluster version
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+    kind: ClusterVersion
+    name: version
+  register: result
+
+- set_fact:
+    cluster_version: "{{ result.resources[0].spec.channel | split('-') | last }}"
+
+- set_fact:
+    git_repo_basename: "{{ (common.gitops.repo.location.url | split('/') | last) }}"
+
+- set_fact:
+    git_repo_secret_ref: "git-repo-{{ git_repo_basename }}"
+
+- name: "[{{ env.name }}] Add Git Repository SSH key"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ git_repo_secret_ref }}"
+        namespace: flux-system
+      type: Opaque
+      stringData:
+        identity: "{{ common.gitops.repo.secrets.ssh_key }}"
+        known_hosts: "{{ common.gitops.repo.settings.known_hosts }}"
+
+- name: "[{{ env.name }}] Add Git Repository sOps private key"
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: cluster-key
+        namespace: flux-system
+      type: Opaque
+      data:
+        sops.asc: "{{ common.gitops.repo.secrets.cluster_gpg_key | b64encode }}"
+
+- name: "[{{ env.name }}] Bootstrap '{{ env.acm_config.role }}' ACM hub"
+  when: cluster_version is version('4.20', '>=')
+  block:
+    - kubernetes.core.k8s:
+        kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+        definition:
+          apiVersion: source.toolkit.fluxcd.io/v1
+          kind: GitRepository
+          metadata:
+            name: cluster-config
+            namespace: flux-system
+          spec:
+            interval: 1m
+            url: "{{ common.gitops.repo.location.url }}"
+            ref:
+              name: "refs/heads/{{ common.gitops.repo.location.ref }}"
+            secretRef:
+              name: "{{ git_repo_secret_ref }}"
+    - kubernetes.core.k8s:
+        kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+        definition:
+          apiVersion: kustomize.toolkit.fluxcd.io/v1
+          kind: Kustomization
+          metadata:
+            name: cluster-config
+            namespace: flux-system
+          spec:
+            interval: 1m0s
+            sourceRef:
+              kind: GitRepository
+              name: cluster-config
+            path: "infra/acm_hubs/flux/{{ env.acm_config.role }}"
+            prune: true
+            timeout: 1m
+
+- name: "[{{ env.name }}] Bootstrap '{{ env.acm_config.role }}' ACM hub"
+  when: cluster_version is version('4.20', '<')
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ env.cluster.kubeconfig | from_yaml }}"
+    definition:
+      apiVersion: fluxcd.controlplane.io/v1
+      kind: FluxInstance
+      metadata:
+        name: flux
+        namespace: flux-system
+        annotations:
+          fluxcd.controlplane.io/reconcileEvery: 1h
+      spec:
+        distribution:
+          version: 2.x
+          registry: ghcr.io/fluxcd
+        components:
+          - source-controller
+          - kustomize-controller
+          - helm-controller
+          - notification-controller
+          - image-reflector-controller
+          - image-automation-controller
+        cluster:
+          type: openshift
+        sync:
+          kind: GitRepository
+          name: cluster-config
+          url: "{{ common.gitops.repo.location.url }}"
+          ref: "refs/heads/{{ common.gitops.repo.location.ref }}"
+          path: "infra/acm_hubs/flux/{{ env.acm_config.role }}"
+          pullSecret: "{{ git_repo_secret_ref }}"
