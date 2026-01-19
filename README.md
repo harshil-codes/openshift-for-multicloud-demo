@@ -287,7 +287,7 @@ You'll see something like the output shown below when this is done:
 #### ArgoCD
 
 ```sh
-Every 0.5s: kubectl --kubeconfig /tmp/aws_kubeconfig get clusterdeployment,applications.argoproj.io -A                            cnunez-mac: 18:03:06
+Every 0.5s: kubectl get clusterdeployment,applications.argoproj.io -A
 
 NAMESPACE             NAME                                                      INFRAID                     PLATFORM   REGION      VERSION   CLUSTERTY
 PE   PROVISIONSTATUS   POWERSTATE   AGE
@@ -297,10 +297,10 @@ managed-cluster-gcp   clusterdeployment.hive.openshift.io/managed-cluster-gcp   
      Provisioned       Running      63m
 
 NAMESPACE          NAME                                                    SYNC STATUS   HEALTH STATUS
-openshift-gitops   application.argoproj.io/bootstrap-acm-hub-primary       OutOfSync     Healthy
-openshift-gitops   application.argoproj.io/managed-cluster-aws-apps        OutOfSync     Healthy
-openshift-gitops   application.argoproj.io/managed-cluster-aws-operators   OutOfSync     Degraded
-openshift-gitops   application.argoproj.io/managed-cluster-aws-resources   Synced        Healthy
+openshift-gitops   application.argoproj.io/bootstrap-acm-hub-primary       Synced     Healthy
+openshift-gitops   application.argoproj.io/managed-cluster-aws-apps        Synced     Healthy
+openshift-gitops   application.argoproj.io/managed-cluster-aws-operators   Synced     Degraded
+openshift-gitops   application.argoproj.io/managed-cluster-aws-resources   Synced     Healthy
 ```
 
 
