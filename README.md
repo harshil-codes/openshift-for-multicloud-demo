@@ -213,11 +213,18 @@ Follow the steps below to create a new one.
 
 ## 🛫 Deploy the Environment
 
-Run the deploy script
+Update any secrets in the repo:
 
 ```sh
 # Add --help to see what else you can do with this script.
-./deploy.sh --regenerate-secrets
+./deploy.sh --regenerate-secrets --secrets-only
+```
+
+Commit and push your changes, then run the deploy script again:
+
+```sh
+# Add --help to see what else you can do with this script.
+./deploy.sh
 ```
 
 This will do the following:
