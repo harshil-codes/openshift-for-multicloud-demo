@@ -1,10 +1,19 @@
-## Common Operations for Demo Environments
+# Common Operations for Demo Environments
 
 This document outlines common operations you'll do in maintaining the
 environments used for this demo.
 
 > **NOTE**: Red Hat SSO access is required for creating assets from the Red Hat
 > Demo Portal.
+
+## Rotating OpenShift clusters and cloud credentials
+
+Follow this guide when you need to change the OpenShift clusters used for
+hosting ACM and/or the cloud providers used to host the managed clusters created
+by it.
+
+Once finished, re-visit the [README](./README.md) and re-deploy the environment
+as described in the "Deploy!" section.
 
 ### Obtain the decryption secret for the demo config
 
@@ -62,7 +71,7 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
 3. Do the same for the GCP environment:
 
    ```sh
-   export AWS_BASTION=bastion.hostname.tld
+   export GCP_BASTION=bastion.hostname.tld
    SSH_AUTH_SOCK= ssh "lab-user@$GCP_BASTION" 'cat ~/.kube/config' > /tmp/gcp_kubeconfig
    ```
 
