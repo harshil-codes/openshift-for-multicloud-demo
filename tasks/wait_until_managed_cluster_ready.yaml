@@ -4,22 +4,20 @@
 
 # HACK: This seems to exit prematurely when you're creating a cluster from nothing.
 # Do this twice until I figure out why.
-- name: "Wait for '{{ managed_cluster_name }}' to become ready in ACM hub '{{ acm_hub_env.name }}'"
+- name: "Wait an hour for '{{ managed_cluster_name }}' to become ready in ACM hub '{{ acm_hub_env.name }}'"
   kubernetes.core.k8s_info:
     kubeconfig: "{{ acm_hub_env.cluster.kubeconfig }}"
     kind: ClusterDeployment
     name: "{{ managed_cluster_name }}"
     namespace: "{{ managed_cluster_name }}"
     wait: yes
-    wait_sleep: 1
-    wait_timeout: "{{ wait_timeout_secs | default(3600) }}"
     wait_condition:
       type: Ready
       reason: Running
       status: "True"
   register: result
-  retries: 2
-  delay: 5
+  retries: "{{ wait_timeout_secs | default(3600) }}"
+  delay: 1
   until: result.resources | length > 0
 
 
