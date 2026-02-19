@@ -39,7 +39,7 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
    export KUBECONFIG_FILE=/path/to/kubeconfig/aws
    sops set config.yaml \
      '["environments"][1]["cluster"]["kubeconfig"]' \
-     "$(jq -n --arg v "$(cat "$KUBECONFIG_FILE")" '$v')"
+     "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
    ```
 3. Create an OpenShift cluster in an GCP project.
 4. Use sOps to update the kubeconfig for this environment in `config.yaml`:
@@ -48,7 +48,7 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
    export KUBECONFIG_FILE=/path/to/kubeconfig/gcp
    sops set config.yaml \
      '["environments"][0]["cluster"]["kubeconfig"]' \
-     "$(jq -n --arg v "$(cat "$KUBECONFIG_FILE")" '$v')"
+     "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
    ```
 
 #### For Red Hatters
