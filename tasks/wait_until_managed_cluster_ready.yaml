@@ -18,9 +18,9 @@
   register: result
   retries: "{{ wait_timeout_secs | default(3600) }}"
   delay: 1
-  until: ( result.resources | default([] ) | length > 0
+  until: ( result.resources | default([]) ) | length > 0
 
 
 - set_fact:
     "managed_cluster_{{ cloud }}_ready": true
-  when: ( result.resources | default([] ) | length > 0
+  when: ( result.resources | default([]) ) | length > 0
