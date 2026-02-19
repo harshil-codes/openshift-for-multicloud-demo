@@ -735,7 +735,7 @@ regenerate_repo_urls() {
     >&2 echo "ERROR: GitOps URL is not defined."
     return 1
   fi
-  grep -r 'repoURL:' "$PWD/infra/acm_hubs" |
+  grep -r 'repoURL:' "$PWD"/infra/{acm_hubs,bootstrap} |
     while read -r kvp
     do
       file=$(cut -f1 -d ':' <<< "$kvp" | tr -d ':')
@@ -743,6 +743,25 @@ regenerate_repo_urls() {
       test "$gotURL" == "$url" && continue
       >&2 echo "INFO: Updating repoURL in resource '$file' to '$url'"
       xargs sed -Ei '' "s;repoURL:.*;repoURL: $url;g" "$file"
+    done
+}
+
+regenerate_target_revisions() {
+  local rev file gotRev
+  rev=$(sops decrypt "$CONFIG_YAML_PATH" | yq -r '.common.gitops.repo.location.ref')
+  if test -z "$rev" || test "$rev" == null
+  then
+    >&2 echo "ERROR: GitOps branch is not defined."
+    return 1
+  fi
+  grep -r 'targetRevision:' "$PWD"/infra/{acm_hubs,bootstrap} |
+    while read -r kvp
+    do
+      file=$(cut -f1 -d ':' <<< "$kvp" | tr -d ':')
+      gotRev=$(sed -E 's/.*targetRevision: //' <<< "$kvp")
+      test "$gotRev" == "$rev" && continue
+      >&2 echo "INFO: Updating Git branch in resource '$file' to '$rev'"
+      xargs sed -Ei '' "s;targetRevision:.*;targetRevision: $rev;g" "$file"
     done
 }
 
@@ -830,6 +849,7 @@ then
   exit 0
 fi
 regenerate_repo_urls
+regenerate_target_revisions
 if refresh_repo_urls_only "$@"
 then
   >&2 echo "INFO: Repo URLs updated; stopping."
