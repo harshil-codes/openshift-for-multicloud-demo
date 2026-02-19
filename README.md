@@ -213,7 +213,8 @@ Follow the steps below to create a new one.
 
 ## 🛫 Deploy the Environment
 
-Update any secrets in the repo:
+Update any secrets in the repo if this is the first time you're running this
+demo:
 
 ```sh
 # Add --help to see what else you can do with this script.
