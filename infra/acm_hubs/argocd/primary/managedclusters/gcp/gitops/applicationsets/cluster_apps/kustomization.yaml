@@ -9,13 +9,13 @@ patches:
       patch: |-
         - op: replace
           path: /metadata/name
-          value: managed-cluster-gcp-operators
+          value: managed-cluster-gcp-apps
         - op: replace
           path: /spec/template/metadata/annotations/apps.open-cluster-management.io~1ocm-managed-cluster
           value: managed-cluster-gcp
         - op: replace
           path: /spec/template/metadata/name
-          value: managed-cluster-gcp-operators
+          value: managed-cluster-gcp-apps
         - op: replace
           path: /spec/template/spec/source
           value:
