@@ -33,22 +33,33 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
 #### Manually
 
 1. Create an OpenShift cluster in an AWS account.
-2. Use sOps to update the kubeconfig for this environment in `config.yaml`:
+2. Use sOps to update the kubeconfig and OpenShift console URL for this environment in `config.yaml`:
 
    ```sh
    export KUBECONFIG_FILE=/path/to/kubeconfig/aws
+   export AWS_CONSOLE_URL=console-openshift-console.apps.$foo
    sops set config.yaml \
      '["environments"][1]["cluster"]["kubeconfig"]' \
      "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
+   sops set config.yaml \
+     '["environments"][1]["cluster"]["console_url"]' \
+     "$AWS_CONSOLE_URL"
+   ```
+3. Set the console URL for the AWS cluster:
+   ```sh
    ```
 3. Create an OpenShift cluster in an GCP project.
 4. Use sOps to update the kubeconfig for this environment in `config.yaml`:
 
    ```sh
+   export GCP_CONSOLE_URL=console-openshift-console.apps.$foo
    export KUBECONFIG_FILE=/path/to/kubeconfig/gcp
    sops set config.yaml \
      '["environments"][0]["cluster"]["kubeconfig"]' \
      "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
+   sops set config.yaml \
+     '["environments"][0]["cluster"]["console_url"]' \
+     "$GCP_CONSOLE_URL"
    ```
 
 #### For Red Hatters
