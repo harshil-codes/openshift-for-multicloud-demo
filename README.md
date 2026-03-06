@@ -86,22 +86,31 @@ AWS and failover into Google Cloud.
 - Existing OpenShift clusters in AWS and GCP (tested with 4.19)
 - An OpenShift Pull Secret from the Red Hat Cloud Console (you can get one
   [here](https://access.redhat.com/terms-based-registry/accounts)
+- A Portworx Enterprise License Key. Contact your Portworx account team to
+  obtain a trial license.
+
+  > **WARNING**: The Trial that Portworx initializes itself with **will not
+  > work** for this demo! You will need an actual trial license.
 
 ### Instructions
 
-#### Fork this repository
+#### Create a SSH and GPG key for your repo and clusters
 
 This environment uses GitOps to bootstrap ACM and the OpenShift clusters that
-will run our app.
+will run our app. Given this, ArgoCD or Flux will need an SSH key it can use to
+clone your fork of this repository, which we'll create and configure in the next
+section. You will create this SSH key using the instructions below.
 
-Fork this repository so that you can commit and push your changes.  [Click
-here](https://github.com/carlosonunez/openshift-for-multicloud-demo/fork) to do
-that.
+Additionally, our repo contains Kubernetes secrets. These are encrypted with GPG
+via sOps so that they can securely live in this repository alongside the rest of
+our cluster configuration. Consequently, the secrets you'll have in your fork
+will be unusable, as they were encrypted with a GPG key that you don't have in
+your system. We will create a GPG key that can be used to regenerate these
+secrets in this section as well.
 
-#### SSH and GPG Setup
+###### Creating the GPG key
 
-
-2. Create a GPG keypair, if you don't have one already. This will be used to
+1. Create a GPG keypair, if you don't have one already. This will be used to
    encrypt Kubernetes secrets that will be used by your ACM hubs and their
    managed Kubernetes clusters, like cloud credentials and OpenShift install
    configs.
@@ -110,7 +119,7 @@ that.
     gpg --quick-gen-key --batch --yes --passphrase '' your@email.address
     ```
 
-3. Confirm that your key has been created by running the command below:
+2. Confirm that your key has been created by running the command below:
 
     ```sh
     gpg --list-keys your@email.address
@@ -129,6 +138,14 @@ that.
     sub   cv25519 2025-10-14 [E]
     ```
 
+4. Export the private key for the GPG key that you created:
+
+   ```sh
+   gpg --export-secret-key --armor your@email.address > /tmp/gpg_key
+   ```
+
+##### Creating the SSH Key
+
 4. Create an SSH key. This will be used by ArgoCD (and Flux, if configured) to clone this
    repository and deploy the ACM hubs and managed OpenShift clusters
    as well as our demo application and its dependencies.
@@ -136,6 +153,39 @@ that.
     ```sh
     ssh-keygen -t rsa -f /tmp/id_rsa -q -N ''
     ```
+
+5. Confirm that you have a SSH public and private key in `/tmp`:
+
+    ```sh
+    ls -la /tmp/id_rsa*
+    ```
+
+    Your output should look like this:
+
+    ```
+    -rw------- 1 student wheel 2602 Mar  6 14:48 /tmp/id_rsa
+    -rw-r--r-- 1 student wheel  571 Mar  6 14:48 /tmp/id_rsa.pub
+    ```
+
+6. Copy the contents of `/tmp/id_rsa.pub`, as we will use this to configure the
+   fork of this repository in the next section.
+
+#### Fork this repository
+
+1. Fork this repository so that you can commit and push your changes.  [Click
+   here](https://github.com/carlosonunez/openshift-for-multicloud-demo/fork) to
+   do that.
+2. Configure your repository with a SSH key that can be used for cloning. Click
+   on "Settings" then on "Deploy Keys", then click on "Add Deploy Key".
+
+   ![](./static/images/deploy-key.png)
+
+   On the next page, give your key a name, then paste the public key you copied
+   earlier in the boxes shown. Once done, click "Add Key" to add the key.
+
+   ![](./static/images/deploy-key-filled.png)
+
+   You do **not** need to give this key write access.
 
 #### Configuring the environment
 
@@ -199,6 +249,53 @@ Follow the steps in the "Rotating OpenShift clusters and cloud credentials"
 section in [this](./OPERATIONS.md) document to configure the Kubeconfigs and
 cloud credentials to your `config.yaml`.
 
+##### Configuring Git credentials used by ArgoCD or Flux
+
+The SSH and GPG keys you created earlier will be used by ArgoCD or Flux to sync
+this repository with your OpenShift clusters and the managed clusters created by
+ACM.
+
+1. Set the repo that your clusters will pull configuration from with the command
+   shown below:
+
+   ```sh
+   # This must ALWAYS be the SSH URL for your Git repository!
+   export SSH_GIT_REPO_URL=ssh://git@github.com:22/$YOUR_GITHUB_USERNAME/$YOUR_GITHUB_REPO
+   export GIT_BRANCH=main
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["settings"]["location"]["url"]' \
+       "$SSH_GIT_REPO_URL"
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["settings"]["location"]["ref"]' \
+       "$GIT_BRANCH"
+   ```
+
+2. Run the command below to add the SSH key information you created earlier:
+
+   ```sh
+   public_key=$(cat /tmp/id_rsa.pub)
+   private_key=$(cat /tmp/id_rsa)
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["credentials"]["ssh"]["public"]' \
+       "$public_key"
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["credentials"]["ssh"]["private"]' \
+       "$private_key"
+   ```
+
+3. Run the command below to add the credentials used by ArgoCD or Flux:
+
+   ```sh
+   ssh_private_key=$(cat /tmp/id_rsa)
+   gpg_private_key=$(cat /tmp/gpg_key)
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["secrets"]["ssh_key"]' \
+       "$ssh_public_key"
+   sops set config.yaml \
+       '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
+       "$gpg_private_key"
+   ```
+
 ##### Configuring the OpenShift Pull Secret
 
 The OpenShift pull secret is used by Multicluster Engine to provision the
@@ -214,6 +311,17 @@ managed clusters that the example app will be hosted from.
    secret="PASTE_SECRET_HERE"
    sops set config.yaml '["common"]["ocp_pull_secret"]'  "$(jq tostring <<< "$secret")"
    ```
+
+##### Setting the Portworx license key
+
+Run the command below to set your Portworx license in the config:
+
+```sh
+export PORTWORX_LICENSE_KEY="really-long-string"
+sops set config.yaml \
+    '["common"]["datareplication"]["settings"]["credentials"]["license_key"]' \
+    "$PORTWORX_LICENSE_KEY"
+```
 
 ##### Configuring the App Database
 
