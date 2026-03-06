@@ -84,14 +84,22 @@ AWS and failover into Google Cloud.
   page](https://github.com/getsops/sops?tab=readme-ov-file#1download) for
   installation instructions
 - Existing OpenShift clusters in AWS and GCP (tested with 4.19)
+- An OpenShift Pull Secret from the Red Hat Cloud Console (you can get one
+  [here](https://access.redhat.com/terms-based-registry/accounts)
 
 ### Instructions
 
+#### Fork this repository
+
+This environment uses GitOps to bootstrap ACM and the OpenShift clusters that
+will run our app.
+
+Fork this repository so that you can commit and push your changes.  [Click
+here](https://github.com/carlosonunez/openshift-for-multicloud-demo/fork) to do
+that.
+
 #### SSH and GPG Setup
 
-1. Fork this repository so that you can commit and push your changes.
-   [Click
-   here](https://github.com/carlosonunez/openshift-for-multicloud-demo/fork) to do that.
 
 2. Create a GPG keypair, if you don't have one already. This will be used to
    encrypt Kubernetes secrets that will be used by your ACM hubs and their
@@ -129,7 +137,7 @@ AWS and failover into Google Cloud.
     ssh-keygen -t rsa -f /tmp/id_rsa -q -N ''
     ```
 
-#### Creating a config
+#### Configuring the environment
 
 The configuration for our ACM hubs, managed clusters, operators and apps lives
 in `config.yaml` at the root of our repository. This file is encrypted with sOps
@@ -138,8 +146,7 @@ preserve changes made to it into our history.
 
 Follow the steps below to create a new one.
 
-1. Retrieve the kubeconfigs for the clusters in AWS and GCP that you'd like the
-   ACM hubs in this demo environment to be hosted inside of.
+##### Creating the config file
 
 2. Create a new config file from the example:
 
@@ -147,8 +154,7 @@ Follow the steps below to create a new one.
     rm config.yaml && cp config.example.yaml config.yaml
     ```
 
-   **WARNING**: `config.yaml` is **NOT** ready to be modified securely yet.
-   Follow the steps below to encrypt it first.
+    **DO NOT MODIFY `config.yaml` YET!**
 
 3. Run the command below to obtain the fingerprint for the GPG key that you created:
 
@@ -187,23 +193,44 @@ Follow the steps below to create a new one.
    Congratulations! Your config is now encrypted and can be modified securely
    with `sops`.
 
-7. We're now ready to update our config. Run `sops config.yaml` to open a
-   decrypted copy of `config.yaml` in an editor, then make the following
-   changes:
+##### Adding Kubeconfigs and Cloud Credentials
 
-   - Set the `kubeconfig` key in the `gcp` environment to the kubeconfig of the
-     OpenShift cluster in GCP that you'd like ACM to be hosted in.
+Follow the steps in the "Rotating OpenShift clusters and cloud credentials"
+section in [this](./OPERATIONS.md) document to configure the Kubeconfigs and
+cloud credentials to your `config.yaml`.
 
-   - Set the `kubeconfig` key in the `aws` environment to the kubeconfig of your
-     OpenShift cluster in AWS that you'd like ACM to be hosted in.
+##### Configuring the OpenShift Pull Secret
 
-   - The OpenShift cluster in AWS is the "primary" ACM hub that managed
-     clusters and GitOps will be hosted out of. To change this, set
-     `acm_config.role` to `primary` underneath the `gcp` environment and
-     `acm_config.role` underneath the `aws` environment to `backup`.
+The OpenShift pull secret is used by Multicluster Engine to provision the
+managed clusters that the example app will be hosted from.
 
-   - Replace anything that says `change me` with actual values. See the comments
-     above the keys for guidance on what to replace them with.
+1. Obtain your pull secret. Visit [this
+   page](https://console.redhat.com/openshift/install/aws/installer-provisioned),
+   then click on "Copy pull secret" to, well, copy your pull secret!
+
+2. Run the command below to update your config with the pull secret:
+
+   ```sh
+   secret="PASTE_SECRET_HERE"
+   sops set config.yaml '["common"]["ocp_pull_secret"]'  "$(jq tostring <<< "$secret")"
+   ```
+
+##### Configuring the App Database
+
+Run the command below to set a username, password and name for the CockroachDB database
+used by our example app:
+
+```sh
+export DB_USERNAME=username # make this whatever you want
+export DB_PASSWORD=supersecret # make this whatever you want
+export DB_DATABASE=database # make this whatever you want
+for t in username password database
+do
+    k="DB_${t^^}"
+    v="${!k}"
+    sops set config.yaml '["common"]["database"]["settings"]["'"$t"'"]' "\"$v\""
+done
+```
 
 > 📝 **NOTE**
 >
@@ -430,7 +457,7 @@ Create some todos. Cross out some others.
 Run the command below to initiate the failover:
 
 ```sh
-./failover.sh
+./simulate_failover.sh
 ```
 
 This will do the following:
