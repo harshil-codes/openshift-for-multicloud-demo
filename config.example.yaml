@@ -4,6 +4,25 @@ preflight:
     # encrypted
     config_usable: true
 common:
+    bootstrap:
+        # commmon.bootstrap: The GitOps tool used to bootstrap ACM and managed clusters.
+        # Must be 'flux' or 'argocd'
+        bootstrapper: argocd
+    dns:
+        settings:
+            # dns.settings.domain_name: The domain name to access managed clusters and our demo app
+            # from.
+            domain_name: change me
+            # dns.settings.provider: The DNS provider used to write DNS records for our app.
+            # Must be 'aws'.
+            provider: aws
+            # dns.settings.credentials: Credentials for the provider defined by
+            # 'common.dns.settings.provider'.
+            # encrypted
+            credentials:
+                access_key_id: change me!
+                secret_access_key: change me!
+                region: us-east-2
     database:
         settings:
             # common.database.settings.provider: The name of the database being used for our example
@@ -40,7 +59,13 @@ common:
         settings:
             # common.datareplication.settings.provider: The name of the provider for replicated
             # storage between clusters.
+            # Must be 'portworx'.
             provider: portworx
+            credentials:
+              # common.datareplication.settings.credentials.license_key: The license key for
+              # the datareplication provider.
+              # encrypted
+              license_key: change me!
             network:
                 ports:
                     # common.datareplication.settings.network.ports.tcp: TCP ports to open
@@ -80,7 +105,7 @@ common:
                     # common.datareplication.settings.object_store.endpoint_url:
                     # Endpoint URL for the S3 service that Portworx Enterprise will use to
                     # sync objects between clusters.
-                    endpoint_url: change me!
+                    endpoint_url: s3.amazonaws.com
                     # common.datareplication.settings.object_store.access_key_id
                     # Access key ID for the S3 service that Portworx Enterprise will use to
                     # sync objects between clusters.
@@ -111,7 +136,7 @@ common:
                 # common.dataprotection.settings.aws.region: The bucket for the
                 # backups taken by OADP in the ACM hub will live.
                 bucket:
-                    key: 1jdigrzylmyo-acm-hub-backups
+                    key: change me!
                 # common.dataprotection.settings.aws.region: The credentials filebucket for the
                 # backups taken by OADP in the ACM hub will live.
                 # encrypted
@@ -129,7 +154,7 @@ common:
                     github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk=
                     github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=
             location:
-                url: ssh://git@github.com:22/carlosonunez-redhat/openshift-for-multicloud-demo
+                url: ssh://git@github.com:22/your-github-username/openshift-for-multicloud-demo
                 # this can also be a commit SHA.
                 ref: main
                 path: ./infra/acm_hubs
@@ -162,7 +187,7 @@ environments:
       cloud_config:
         networking:
             region: us-east1
-            domain: vtffx.gcp.redhatworkshops.io
+            domain: change me!
         # encrypted
         credentials:
             project: change me!
@@ -198,7 +223,7 @@ environments:
       cloud_config:
         networking:
             region: us-east-2
-            domain: sandbox166.opentlc.com
+            domain: change me!
         # encrypted
         credentials:
             aws_access_key_id: change me!
