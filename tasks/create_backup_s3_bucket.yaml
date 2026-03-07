@@ -13,3 +13,7 @@
     region: "{{ settings.aws.region }}"
     name: "{{ oadp_bucket }}"
     state: present
+  register: result
+  retries: 60
+  delay: 5
+  until: not result.failed
