@@ -1,0 +1,267 @@
+preflight:							preflight:
+    # preflight.config_usable: Used by the deployment Ansible	    # preflight.config_usable: Used by the deployment Ansible
+    # this file has been encrypted. Can be set to anything.	    # this file has been encrypted. Can be set to anything.
+    # encrypted							    # encrypted
+    config_usable: true					      |	    config_usable: ENC[AES256_GCM,data:uAv7gQ==,iv:jeuChksyd5
+common:								common:
+    bootstrap:							    bootstrap:
+        # commmon.bootstrap: The GitOps tool used to bootstra	        # commmon.bootstrap: The GitOps tool used to bootstra
+        # Must be 'flux' or 'argocd'				        # Must be 'flux' or 'argocd'
+        bootstrapper: argocd					        bootstrapper: argocd
+    dns:							    dns:
+        settings:						        settings:
+            # dns.settings.domain_name: The domain name to ac	            # dns.settings.domain_name: The domain name to ac
+            # from.						            # from.
+            domain_name: change me			      |	            domain_name: sandbox3395.opentlc.com
+            # dns.settings.provider: The DNS provider used to	            # dns.settings.provider: The DNS provider used to
+            # Must be 'aws'.					            # Must be 'aws'.
+            provider: aws					            provider: aws
+            # dns.settings.credentials: Credentials for the p	            # dns.settings.credentials: Credentials for the p
+            # 'common.dns.settings.provider'.			            # 'common.dns.settings.provider'.
+            # encrypted						            # encrypted
+            credentials:					            credentials:
+                access_key_id: change me!		      |	                access_key_id: ENC[AES256_GCM,data:J47/yw8f/n
+                secret_access_key: change me!		      |	                secret_access_key: ENC[AES256_GCM,data:bPGS1F
+                region: us-east-2			      |	                region: ENC[AES256_GCM,data:9hvgJsGC4F36,iv:Q
+    database:							    database:
+        settings:						        settings:
+            # common.database.settings.provider: The name of 	            # common.database.settings.provider: The name of 
+            # app.						            # app.
+            provider: cockroachdb				            provider: cockroachdb
+            credentials:					            credentials:
+                # common.database.settings.credentials.userna	                # common.database.settings.credentials.userna
+                # for the database. See the 'resources/cockro	                # for the database. See the 'resources/cockro
+                # component to learn how this is done.		                # component to learn how this is done.
+                # encrypted					                # encrypted
+                username: change me!			      |	                username: ENC[AES256_GCM,data:K2CoFjQpGWD4ntc
+                # common.database.settings.credentials.passwo	                # common.database.settings.credentials.passwo
+                # for the database. See the 'resources/cockro	                # for the database. See the 'resources/cockro
+                # component to learn how this is done.		                # component to learn how this is done.
+                # encrypted					                # encrypted
+                password: change me!			      |	                password: ENC[AES256_GCM,data:XtEc7MvVXZQEpzO
+                # common.database.settings.credentials.databa	                # common.database.settings.credentials.databa
+                # for the database. See the 'resources/cockro	                # for the database. See the 'resources/cockro
+                # component to learn how this is done.		                # component to learn how this is done.
+                # encrypted					                # encrypted
+                database: change me!			      |	                database: ENC[AES256_GCM,data:sOVObNX4qv1WUeE
+            network:						            network:
+                ports:						                ports:
+                    # common.database.settings.network.ports.	                    # common.database.settings.network.ports.
+                    # for database traffic.			                    # for database traffic.
+                    tcp:					                    tcp:
+                        - 8080					                        - 8080
+                        - 26257					                        - 26257
+                        - 26258					                        - 26258
+                    # common.database.settings.network.ports.	                    # common.database.settings.network.ports.
+                    # for database traffic.			                    # for database traffic.
+                    udp: []					                    udp: []
+    datareplication:						    datareplication:
+        settings:						        settings:
+            # common.datareplication.settings.provider: The n	            # common.datareplication.settings.provider: The n
+            # storage between clusters.				            # storage between clusters.
+            # Must be 'portworx'.				            # Must be 'portworx'.
+            provider: portworx					            provider: portworx
+            credentials:					            credentials:
+              # common.datareplication.settings.credentials.l |	                # common.datareplication.settings.credentials
+              # the datareplication provider.		      |	                # the datareplication provider.
+              # encrypted				      |	                # encrypted
+              license_key: change me!			      |	                license_key: ENC[AES256_GCM,data:lW6qBKdV+Wn5
+            network:						            network:
+                ports:						                ports:
+                    # common.datareplication.settings.network	                    # common.datareplication.settings.network
+                    # for storage provider traffic between ku	                    # for storage provider traffic between ku
+                    # https://docs.portworx.com/portworx-back	                    # https://docs.portworx.com/portworx-back
+                    tcp:					                    tcp:
+                        - 2379					                        - 2379
+                        - 9001-9004				                        - 9001-9004
+                        - 9009-9011				                        - 9009-9011
+                        - 9015-9016				                        - 9015-9016
+                        - 9018-9019				                        - 9018-9019
+                        - 9021-9022				                        - 9021-9022
+                        - 9024					                        - 9024
+                        - 9029					                        - 9029
+                        - 12001					                        - 12001
+                        - 12002					                        - 12002
+                        - 17001-17004				                        - 17001-17004
+                        - 17009-17011				                        - 17009-17011
+                        - 17015-17016				                        - 17015-17016
+                        - 17018-17019				                        - 17018-17019
+                        - 17021					                        - 17021
+                        - 20002					                        - 20002
+                    # common.datareplication.settings.network	                    # common.datareplication.settings.network
+                    # for storage provider traffic between ku	                    # for storage provider traffic between ku
+                    # https://docs.portworx.com/portworx-back	                    # https://docs.portworx.com/portworx-back
+                    udp:					                    udp:
+                        - 9002					                        - 9002
+            # common.datareplication.settings.object_store: S	            # common.datareplication.settings.object_store: S
+            # store that will hold the bucket that Portworx E	            # store that will hold the bucket that Portworx E
+            # sync Portworx-managed volumes between clusters.	            # sync Portworx-managed volumes between clusters.
+            #							            #
+            # In this demo, we assume that this will live in 	            # In this demo, we assume that this will live in 
+            # set this to a third-party S3 storage provider, 	            # set this to a third-party S3 storage provider, 
+            # further decouple your infrastructure from the m	            # further decouple your infrastructure from the m
+            object_store:					            object_store:
+                # common.datareplication.settings.object_stor	                # common.datareplication.settings.object_stor
+                # Endpoint URL for the S3 service that Portwo	                # Endpoint URL for the S3 service that Portwo
+                # sync objects between clusters.		                # sync objects between clusters.
+                endpoint_url: s3.amazonaws.com			                endpoint_url: s3.amazonaws.com
+                # common.datareplication.settings.object_stor	                # common.datareplication.settings.object_stor
+                # Access key ID for the S3 service that Portw	                # Access key ID for the S3 service that Portw
+                # sync objects between clusters.		                # sync objects between clusters.
+                # encrypted					                # encrypted
+                access_key_id: change me!		      |	                access_key_id: ENC[AES256_GCM,data:iLMBnhdBzo
+                # common.datareplication.settings.object_stor	                # common.datareplication.settings.object_stor
+                # Secret access key for the S3 service that P	                # Secret access key for the S3 service that P
+                # sync objects between clusters.		                # sync objects between clusters.
+                # encrypted					                # encrypted
+                secret_access_key: change me!		      |	                secret_access_key: ENC[AES256_GCM,data:/dmzSq
+                # common.datareplication.settings.object_stor	                # common.datareplication.settings.object_stor
+                # Region for the S3 service that Portworx Ent	                # Region for the S3 service that Portworx Ent
+                # between clusters.				                # between clusters.
+                region: us-east-2				                region: us-east-2
+    dataprotection:						    dataprotection:
+        settings:						        settings:
+            # common.datareplication.settings.aws: Settings f	            # common.datareplication.settings.aws: Settings f
+            # store that will hold the bucket that OADP will 	            # store that will hold the bucket that OADP will 
+            # backup your primary ACM hub. These backups will	            # backup your primary ACM hub. These backups will
+            # into the backup ACM hub when you simulate a reg	            # into the backup ACM hub when you simulate a reg
+            #							            #
+            # In this demo, we assume that this will live in 	            # In this demo, we assume that this will live in 
+            # set this to a third-party S3 storage provider, 	            # set this to a third-party S3 storage provider, 
+            # further decouple your infrastructure from the m	            # further decouple your infrastructure from the m
+							      >	            # encrypted
+            aws:						            aws:
+                # common.dataprotection.settings.aws.region:  |	                #ENC[AES256_GCM,data:3nIzuknha7w9DgMGZyJvXX+n
+                # backups taken by OADP in the ACM hub will l |	                #ENC[AES256_GCM,data:ihvB05OLynfDxooRWxHYbwLG
+                region: us-east-2			      |	                region: ENC[AES256_GCM,data:Uz+hOB/2ZMwp,iv:c
+                # common.dataprotection.settings.aws.region:  |	                #ENC[AES256_GCM,data:517eZBhUr8avhAKU29W0yaGu
+                # backups taken by OADP in the ACM hub will l |	                #ENC[AES256_GCM,data:ihvB05OLynfDxooRWxHYbwLG
+                # encrypted				      |	                #ENC[AES256_GCM,data:H1rJ0GvI7AV7sA==,iv:Ruas
+                credentials_file: |			      |	                credentials_file: ENC[AES256_GCM,data:XCIXBZh
+                  [default]				      <	
+                  aws_access_key_id = change-me		      <	
+                  aws_secret_access_key = change-me	      <	
+    gitops:							    gitops:
+        repo:							        repo:
+            settings:						            settings:
+                # common.gitops.repo.settings.known_hosts: Se	                # common.gitops.repo.settings.known_hosts: Se
+                # that Flux and ArgoCD will use for creating 	                # that Flux and ArgoCD will use for creating 
+                known_hosts: |-					                known_hosts: |-
+                    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NT	                    github.com ssh-ed25519 AAAAC3NzaC1lZDI1NT
+                    github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQ	                    github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQ
+                    github.com ecdsa-sha2-nistp256 AAAAE2VjZH	                    github.com ecdsa-sha2-nistp256 AAAAE2VjZH
+            location:						            location:
+                url: ssh://git@github.com:22/your-github-user |	                url: ssh://git@github.com:22/carlosonunez-red
+                # this can also be a commit SHA.		                # this can also be a commit SHA.
+                ref: main				      |	                ref: test/deploy_steps_correct_in_Readme
+                path: ./infra/acm_hubs				                path: ./infra/acm_hubs
+            credentials:					            credentials:
+                # this should be a read-only token.		                # this should be a read-only token.
+                ssh:						                ssh:
+                    # common.gitops.repo.settings.credentials	                    # common.gitops.repo.settings.credentials
+                    # cloning the repo specified in common.gi	                    # cloning the repo specified in common.gi
+                    # (See README to generate this.)		                    # (See README to generate this.)
+                    public: change me			      |	                    public: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABA
+                    # common.gitops.repo.settings.credentials	                    # common.gitops.repo.settings.credentials
+                    # cloning the repo specified in common.gi	                    # cloning the repo specified in common.gi
+                    # (See README to generate this.)		                    # (See README to generate this.)
+                    # encrypted					                    # encrypted
+                    private: change me!			      |	                    private: ENC[AES256_GCM,data:0svkczD5GAXM
+            secrets:						            secrets:
+                # encrypted					                # encrypted
+                cluster_gpg_key: change me!		      |	                cluster_gpg_key: ENC[AES256_GCM,data:oZgi0hW/
+                # encrypted					                # encrypted
+                ssh_key: change me!			      |	                ssh_key: ENC[AES256_GCM,data:pS3eJTk7YdXb++tL
+    # encrypted							    # encrypted
+    ocp_pull_secret: change me!				      |	    ocp_pull_secret: ENC[AES256_GCM,data:OF2sc0mDTnfdnRBOriow
+environments:							environments:
+    - name: gcp							    - name: gcp
+      acm_config:						      acm_config:
+        role: backup						        role: backup
+      cluster_config:						      cluster_config:
+        cluster_name: managed-cluster-gcp			        cluster_name: managed-cluster-gcp
+        openshift_image_set: img4.18.26-multi-appsub		        openshift_image_set: img4.18.26-multi-appsub
+      cloud_config:						      cloud_config:
+        networking:						        networking:
+            region: us-east1					            region: us-east1
+            domain: change me!				      |	            domain: c7lr9.gcp.redhatworkshops.io
+        # encrypted						        # encrypted
+        credentials:						        credentials:
+            project: change me!				      |	            project: ENC[AES256_GCM,data:Th71Xi+dsJnbkiYtyw==
+            service_account.json: change me!		      |	            service_account.json: ENC[AES256_GCM,data:iQLC7ft
+      cluster:							      cluster:
+        # encrypted						        # encrypted
+        kubeconfig:						        kubeconfig:
+            apiVersion: change me!			      |	            apiVersion: ENC[AES256_GCM,data:NwU=,iv:HzqTki6yb
+            clusters:						            clusters:
+                - cluster:					                - cluster:
+                    certificate-authority-data: change me!    |	                    certificate-authority-data: ENC[AES256_GC
+                    server: change me!			      |	                    server: ENC[AES256_GCM,data:XkmOnv0zuMDhh
+                  name: change me!			      |	                  name: ENC[AES256_GCM,data:P+ZuGar5DuOQrLAB5
+            contexts:						            contexts:
+                - context:					                - context:
+                    cluster: change me!			      |	                    cluster: ENC[AES256_GCM,data:fq+tNjV5jWXG
+                    user: change me!			      |	                    user: ENC[AES256_GCM,data:Jm1QZHs=,iv:zQE
+                  name: change me!			      |	                  name: ENC[AES256_GCM,data:HFfXecA=,iv:In6Om
+            current-context: change me!			      |	            current-context: ENC[AES256_GCM,data:sYKtmXs=,iv:
+            kind: change me!				      |	            kind: ENC[AES256_GCM,data:HZmeAcQt,iv:+4/7eS2ZPoe
+            preferences: {}					            preferences: {}
+            users:						            users:
+                - name: change me!			      |	                - name: ENC[AES256_GCM,data:1IZ5NzE=,iv:SouC5
+                  user:						                  user:
+                    client-certificate-data: change me!	      |	                    client-certificate-data: ENC[AES256_GCM,d
+                    client-key-data: change me!		      |	                    client-key-data: ENC[AES256_GCM,data:+PSf
+    - name: aws							    - name: aws
+      acm_config:						      acm_config:
+        role: primary						        role: primary
+      cluster_config:						      cluster_config:
+        cluster_name: managed-cluster-aws			        cluster_name: managed-cluster-aws
+        openshift_image_set: img4.18.26-multi-appsub		        openshift_image_set: img4.18.26-multi-appsub
+      cloud_config:						      cloud_config:
+        networking:						        networking:
+            region: us-east-2					            region: us-east-2
+            domain: change me!				      |	            domain: sandbox3395.opentlc.com
+        # encrypted						        # encrypted
+        credentials:						        credentials:
+            aws_access_key_id: change me!		      |	            aws_access_key_id: ENC[AES256_GCM,data:N0dr8bBkzP
+            aws_secret_access_key: change me!		      |	            aws_secret_access_key: ENC[AES256_GCM,data:mM+z+t
+      cluster:							      cluster:
+        # encrypted						        # encrypted
+        kubeconfig:						        kubeconfig:
+            apiVersion: change me!			      |	            apiVersion: ENC[AES256_GCM,data:NwU=,iv:HzqTki6yb
+            clusters:						            clusters:
+                - cluster:					                - cluster:
+                    certificate-authority-data: change me!    |	                    certificate-authority-data: ENC[AES256_GC
+                    server: change me!			      |	                    server: ENC[AES256_GCM,data:3Wr/Ts+zwBGcy
+                  name: change me!			      |	                  name: ENC[AES256_GCM,data:SOKTctRyaIpE8uanZ
+            contexts:						            contexts:
+                - context:					                - context:
+                    cluster: change me!			      |	                    cluster: ENC[AES256_GCM,data:usDueJUiWw13
+                    user: change me!			      |	                    user: ENC[AES256_GCM,data:Jm1QZHs=,iv:zQE
+                  name: change me!			      |	                  name: ENC[AES256_GCM,data:HFfXecA=,iv:In6Om
+            current-context: change me!			      |	            current-context: ENC[AES256_GCM,data:sYKtmXs=,iv:
+            kind: change me!				      |	            kind: ENC[AES256_GCM,data:HZmeAcQt,iv:+4/7eS2ZPoe
+            preferences: {}					            preferences: {}
+            users:						            users:
+                - name: change me!			      |	                - name: ENC[AES256_GCM,data:1IZ5NzE=,iv:SouC5
+                  user:						                  user:
+                    client-certificate-data: change me!	      |	                    client-certificate-data: ENC[AES256_GCM,d
+                    client-key-data: change me!		      |	                    client-key-data: ENC[AES256_GCM,data:cVaB
+							      >	sops:
+							      >	    lastmodified: "2026-03-06T22:21:30Z"
+							      >	    mac: ENC[AES256_GCM,data:ZKx9rTPklumrmYij8piGS4LO94VqAFPd
+							      >	    pgp:
+							      >	        - created_at: "2026-03-06T21:01:05Z"
+							      >	          enc: |-
+							      >	            -----BEGIN PGP MESSAGE-----
+							      >	
+							      >	            hF4DcV8R1/ERMXESAQdAVcMY37DSZBzaYBxxluIsBWxCZ2wvc
+							      >	            UGnSzxpDXZH+uzNf4nZJyeC6zZJAFhQ8jtslzZOdqH3jz9lI6
+							      >	            1GgBCQIQLkoWqdeBzLU0EUBSZoESmip5PbSjljjdGvWNbSeVF
+							      >	            1gC1FINF1w/DE9C+uCsMedPzZMuyAacYkNw25DfKNXIHLX6RI
+							      >	            dtOmBpvusScfSQ==
+							      >	            =coKp
+							      >	            -----END PGP MESSAGE-----
+							      >	          fp: 005B1AFC865A05CF0302C4EE408FF9AC0D2CDA98
+							      >	    encrypted_comment_regex: ^[ ]{0,}encrypted$
+							      >	    version: 3.11.0

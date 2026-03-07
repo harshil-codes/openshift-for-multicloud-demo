@@ -82,3 +82,42 @@ sops set config.yaml \
     '["common"]["datareplication"]["settings"]["credentials"]["license_key"]' \
     "$new_key"
 ```
+
+### Bootstrapping the primary ACM hub fails due to `Error getting data key: 0 successful groups required, got 0`
+
+The GPG key you created or are using has OCB mode on.
+
+Follow the instructions in the [README.md](./README.md) for removing this mode
+from your key. Afterwards:
+
+- Re-export your private key: `gpg --export-secret-key --armor your@email.address > /tmp/gpg-key`
+- Update your config with the new key (see the README for how to do this)
+- Run `./deploy.sh --regenerate-secrets --update` to update your secrets to use
+  the modified key, then commit and push your changes,
+- Update the cluster key in the primary hub:
+
+  ```sh
+  oc --kubeconfig /path/to/aws/kubeconfig apply \
+    -n openshift-gitops \
+    -f ./infra/secrets/gitops/cluster_key.yaml
+  ```
+- Restart the ArgoCD server:
+
+  ```sh
+  oc --kubeconfig /path/to/aws/kubeconfig \
+    -n openshift-gitops \
+    rollout restart deployment openshift-gitops-repo-server
+  ```
+
+- Wait for the ArgoCD server to restart.
+- Run `./deploy.sh` again to re-create it.
+
+### Ansible fails to start due to Compose or container issues
+
+Try using Docker instead by running the command below:
+
+```sh
+echo /var/run/docker.sock > .container_sock
+echo docker > .container_bin
+echo docker-compose > .compose_bin
+```

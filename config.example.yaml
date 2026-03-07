@@ -93,31 +93,32 @@ common:
                     # https://docs.portworx.com/portworx-backup-on-prem/install/install-prereq/nw-prereqs
                     udp:
                         - 9002
-                # common.datareplication.settings.object_store: Settings for the object
-                # store that will hold the bucket that Portworx Enterprise will use to
-                # sync Portworx-managed volumes between clusters.
-                #
-                # In this demo, we assume that this will live in AWS S3. However, you can
-                # set this to a third-party S3 storage provider, like Cloudflare R2, to
-                # further decouple your infrastructure from the major hyperscalers.
+            # common.datareplication.settings.object_store: Settings for the object
+            # store that will hold the bucket that Portworx Enterprise will use to
+            # sync Portworx-managed volumes between clusters.
+            #
+            # In this demo, we assume that this will live in AWS S3. However, you can
+            # set this to a third-party S3 storage provider, like Cloudflare R2, to
+            # further decouple your infrastructure from the major hyperscalers.
+            object_store:
+                # common.datareplication.settings.object_store.endpoint_url:
+                # Endpoint URL for the S3 service that Portworx Enterprise will use to
+                # sync objects between clusters.
+                endpoint_url: s3.amazonaws.com
+                # common.datareplication.settings.object_store.access_key_id
+                # Access key ID for the S3 service that Portworx Enterprise will use to
+                # sync objects between clusters.
                 # encrypted
-                object_store:
-                    # common.datareplication.settings.object_store.endpoint_url:
-                    # Endpoint URL for the S3 service that Portworx Enterprise will use to
-                    # sync objects between clusters.
-                    endpoint_url: s3.amazonaws.com
-                    # common.datareplication.settings.object_store.access_key_id
-                    # Access key ID for the S3 service that Portworx Enterprise will use to
-                    # sync objects between clusters.
-                    access_key_id: change me!
-                    # common.datareplication.settings.object_store.access_key_id
-                    # Secret access key for the S3 service that Portworx Enterprise will use to
-                    # sync objects between clusters.
-                    secret_access_key: change me!
-                    # common.datareplication.settings.object_store.access_key_id
-                    # Region for the S3 service that Portworx Enterprise will use to sync objects
-                    # between clusters.
-                    region: us-east-2
+                access_key_id: change me!
+                # common.datareplication.settings.object_store.access_key_id
+                # Secret access key for the S3 service that Portworx Enterprise will use to
+                # sync objects between clusters.
+                # encrypted
+                secret_access_key: change me!
+                # common.datareplication.settings.object_store.access_key_id
+                # Region for the S3 service that Portworx Enterprise will use to sync objects
+                # between clusters.
+                region: us-east-2
     dataprotection:
         settings:
             # common.datareplication.settings.aws: Settings for the object
@@ -193,6 +194,7 @@ environments:
             project: change me!
             service_account.json: change me!
       cluster:
+        console_url: change me!
         # encrypted
         kubeconfig:
             apiVersion: change me!
@@ -229,6 +231,7 @@ environments:
             aws_access_key_id: change me!
             aws_secret_access_key: change me!
       cluster:
+        console_url: change me!
         # encrypted
         kubeconfig:
             apiVersion: change me!

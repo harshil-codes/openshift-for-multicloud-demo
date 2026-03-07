@@ -36,14 +36,14 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
 2. Use sOps to update the kubeconfig and OpenShift console URL for this environment in `config.yaml`:
 
    ```sh
-   export KUBECONFIG_FILE=/path/to/kubeconfig/aws
    export AWS_CONSOLE_URL=console-openshift-console.apps.$foo
+   export KUBECONFIG_FILE=/path/to/kubeconfig/aws
    sops set config.yaml \
      '["environments"][1]["cluster"]["kubeconfig"]' \
      "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
    sops set config.yaml \
      '["environments"][1]["cluster"]["console_url"]' \
-     "$AWS_CONSOLE_URL"
+     "\"$AWS_CONSOLE_URL\""
    ```
 3. Set the console URL for the AWS cluster:
    ```sh
@@ -52,8 +52,8 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
 4. Use sOps to update the kubeconfig for this environment in `config.yaml`:
 
    ```sh
-   export GCP_CONSOLE_URL=console-openshift-console.apps.$foo
    export KUBECONFIG_FILE=/path/to/kubeconfig/gcp
+   export GCP_CONSOLE_URL=console-openshift-console.apps.$foo
    sops set config.yaml \
      '["environments"][0]["cluster"]["kubeconfig"]' \
      "$(yq -o=j -P '.' "$KUBECONFIG_FILE")"
@@ -106,6 +106,31 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
        "$(yq -o=j -P '.' "/tmp/${k}_kubeconfig")"
     done
     ```
+
+5. Update `config.yaml` with the console URLs:
+
+```sh
+    export AWS_CONSOLE_URL=foo
+    export GCP_CONSOLE_URL=bar
+    for k in aws gcp
+    do
+      case "$k" in
+      aws)
+        idx=1
+        ;;
+      gcp)
+        idx=0
+        ;;
+      *)
+        ;;
+      esac
+      var="${k^^}_CONSOLE_URL"
+      sops set config.yaml \
+       '["environments"]['"$idx"']["cluster"]["console_url"]' \
+       "\"${!var}\""
+    done
+    ```
+
 
 ### Set up the managed cluster environments
 
@@ -206,7 +231,7 @@ Use those values to complete steps 4, 5 and 7 listed above.
 
 ```sh
 export PROJECT_NAME=your-project-name
-export SERVICE_ACCOUNT_KEY=/path/to/private/key
+export SERVICE_ACCOUNT_KEY=~/Downloads/your-service-key.json
 sops set config.yaml \
     '["environments"][0]["cloud_config"]["credentials"]["project"]' \
     "\"$PROJECT_NAME\""

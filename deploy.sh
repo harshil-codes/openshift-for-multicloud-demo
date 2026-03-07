@@ -47,6 +47,11 @@ NOTES
 EOF
 }
 
+_regenerate_secrets() {
+  test "${REGENERATE_SECRETS,,}" == 'true'
+}
+
+
 _compose_bin() {
   if test -f "$PWD/.compose_bin"
   then
@@ -133,6 +138,16 @@ create_data_volume() {
   _container volume create "$DATA_VOLUME_NAME" >/dev/null
 }
 
+_oadp_bucket() {
+  local id
+  id=$(sops decrypt --extract '["common"]["dataprotection"]["settings"]["aws"]["credentials_file"]' \
+    "$CONFIG_YAML_PATH" |
+  base64 -w 0 |
+  head -c 12 |
+  tr '[:upper:]' '[:lower:]')
+  echo "ocp-multicloud-demo-$id"
+}
+
 create_secrets_volume() {
   export CONTAINER_SOCK="$(_container_sock)"
   export CONTAINER_REGISTRIES_CONF="$(_container_registries_conf)"
@@ -162,6 +177,7 @@ deploy() {
   export CONTAINER_REGISTRIES_CONF="$(_container_registries_conf)"
   export CONTAINER_BIN="$(_container_bin)"
   export ANSIBLE_PLAYBOOK=deploy.yaml
+  export ANSIBLE_EXTRA_VARS_OADP_BUCKET=$(_oadp_bucket)
   $cmd -e CLUSTER_KEY_FP=$(_cluster_pgp_key_fp) \
        ansible |
        grep --color=always -Ev '(^[a-z0-9]{64}$|openshift-for-multicloud)'
@@ -190,7 +206,7 @@ generate_cluster_secrets() {
     }
 
     _delete_if_regenerating() {
-      test "${REGENERATE_SECRETS,,}" == 'true' || return 0
+      _regenerate_secrets || return 0
       test -f "$file" || return 0
       rm "$file"
     }
@@ -410,7 +426,7 @@ EOF
           base64 -w 0)
       fi
       test -z "$new_yaml" && return 1
-      sops set "$f" '["data"]["install-config.yaml"]' "\"$new_yaml\""
+      sops --filename-override "$f" set "$f" '["data"]["install-config.yaml"]' "\"$new_yaml\""
     }
 
     _update_if_different_as_string() {
@@ -434,6 +450,7 @@ EOF
     do
       f="${secret_dir}/installconfigs/${cloud}/installconfig.yaml"
       template_f="${secret_dir}/templates/installconfigs/${cloud}.yaml"
+      _regenerate_secrets && rm "$f"
       if ! test -e "$f"
       then
         yaml=$(cat <<-YAML
@@ -730,22 +747,34 @@ update_managedcluster_kustomizations() {
 }
 
 regenerate_repo_urls() {
-  local url file gotURL
+  _regenerate() {
+    local key want got
+    key="$1"
+    want="$2"
+    grep -r "${key}:" "$PWD"/infra/{acm_hubs,bootstrap} |
+      while read -r kvp
+      do
+        file=$(cut -f1 -d ':' <<< "$kvp" | tr -d ':')
+        got=$(sed -E "s/.*${key}: //" <<< "$kvp")
+        test "$want" == "$got" && continue
+        >&2 echo "INFO: Updating $key in resource '$file': $want => $got"
+        sed -Ei '' "s;${key}:.*;${key}: $want;g" "$file"
+      done
+  }
+  local url ref
   url=$(sops decrypt "$CONFIG_YAML_PATH" | yq -r '.common.gitops.repo.location.url')
+  ref=$(sops decrypt "$CONFIG_YAML_PATH" | yq -r '.common.gitops.repo.location.ref')
   if test -z "$url" || test "$url" == null
   then
     >&2 echo "ERROR: GitOps URL is not defined."
     return 1
   fi
-  grep -r 'repoURL:' "$PWD"/infra/{acm_hubs,bootstrap} |
-    while read -r kvp
-    do
-      file=$(cut -f1 -d ':' <<< "$kvp" | tr -d ':')
-      gotURL=$(sed -E 's/.*repoURL: //' <<< "$kvp")
-      test "$gotURL" == "$url" && continue
-      >&2 echo "INFO: Updating repoURL in resource '$file' to '$url'"
-      xargs sed -Ei '' "s;repoURL:.*;repoURL: $url;g" "$file"
-    done
+  if test -z "$ref" || test "$ref" == null
+  then
+    >&2 echo "ERROR: GitOps branch/ref is not defined."
+    return 1
+  fi
+  _regenerate repoURL "$url" && _regenerate targetRevision "$ref"
 }
 
 regenerate_target_revisions() {
@@ -789,20 +818,28 @@ refresh_repo_urls_only() {
   grep -Eq -- '--repo-urls-only' <<< "$@"
 }
 
+prepare_environment() {
+  grep -Eq -- '--prepare' <<< "$@"
+}
+
+update_environment() {
+  grep -Eq -- '--update' <<< "$@"
+}
+
 skip_preflight_checks() {
   grep -Eq -- '--skip-preflight' <<< "$@"
 }
 
 update_dataprotection_buckets() {
-  local bucket_name bucket_name file bucket new_file
-  bucket_name="$(sops decrypt --extract '["common"]["dataprotection"]["settings"]["aws"]["bucket"]["key"]' "$CONFIG_YAML_PATH")"
+
+  local bucket file bucket new_file
   grep -r -A 1 objectStorage/bucket "$PWD/infra" |
     grep value |
     while read -r line
     do
       file=$(awk '{print $1}' <<< "$line" | sed -E 's/-$//')
       bucket=$(awk -F':' '{print $NF}' <<< "$line")
-      new_file=$(sed -E "s/value:.*$bucket/value: $bucket_name/g" "$file")
+      new_file=$(sed -E "s/value:.*$bucket/value: $(_oadp_bucket)/g" "$file")
       echo "$new_file" > "$file"
     done
 }
@@ -823,7 +860,7 @@ decrypt_gitops_secrets_into_secrets_volume() {
   do
     new_dir="$(dirname "/secrets/$(sed -E 's;.*/secrets/;;' <<< "$f")")"
     new_f="${new_dir}/$(basename "$f")"
-    docker run --rm -v "$SECRETS_VOLUME_NAME:/secrets" bash:5 test -f "$new_f" && continue
+    _regenerate_secrets || { docker run --rm -v "$SECRETS_VOLUME_NAME:/secrets" bash:5 test -f "$new_f" && continue; }
     if grep -Eq '^sops:' "$f"
     then content=$(sops --config "$PWD/infra/secrets/.sops.yaml" decrypt "$f")
     else content=$(cat "$f")

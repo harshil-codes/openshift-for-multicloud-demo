@@ -14,6 +14,7 @@ or need help.
 - [Deploy!](#deploy-the-environment)
 - [Run the demo](#run-the-demo)
 - [Teardown](#teardown)
+- [Having trouble?](#having-trouble)
 
 ## Concepts
 
@@ -137,6 +138,16 @@ secrets in this section as well.
     uid           [ultimate] your@email.address
     sub   cv25519 2025-10-14 [E]
     ```
+
+3. We'll need to remove `OCB` mode from the key we created so that it is
+   compatible with the version of `gpg` that ships with the UBI8 base image that
+   ArgoCD was built off of. Follow these instructions to do that:
+
+   - Enter key edit mode: `gpg --expert --edit-key your@email.address`
+   - Remove the encryption mode from the key's preferences:
+     `setpref AES256 AES192 AES SHA512 SHA384 SHA256 SHA224 ZLIB BZIP2 ZIP`
+   - Hit `y` after it asks you to `Really update the preferences?`
+   - Save your changes, then exit: `save`
 
 4. Export the private key for the GPG key that you created:
 
@@ -263,11 +274,11 @@ ACM.
    export SSH_GIT_REPO_URL=ssh://git@github.com:22/$YOUR_GITHUB_USERNAME/$YOUR_GITHUB_REPO
    export GIT_BRANCH=main
    sops set config.yaml \
-       '["common"]["gitops"]["repo"]["settings"]["location"]["url"]' \
-       "$SSH_GIT_REPO_URL"
+       '["common"]["gitops"]["repo"]["location"]["url"]' \
+       "\"$SSH_GIT_REPO_URL\""
    sops set config.yaml \
-       '["common"]["gitops"]["repo"]["settings"]["location"]["ref"]' \
-       "$GIT_BRANCH"
+       '["common"]["gitops"]["repo"]["location"]["ref"]' \
+       "\"$GIT_BRANCH\""
    ```
 
 2. Run the command below to add the SSH key information you created earlier:
@@ -277,10 +288,10 @@ ACM.
    private_key=$(cat /tmp/id_rsa)
    sops set config.yaml \
        '["common"]["gitops"]["repo"]["credentials"]["ssh"]["public"]' \
-       "$public_key"
+       "\"$public_key\""
    sops set config.yaml \
        '["common"]["gitops"]["repo"]["credentials"]["ssh"]["private"]' \
-       "$private_key"
+       "$(echo '{"foo": 1}' | jq --arg text "$private_key" '.foo|=$text|.foo|tostring')"
    ```
 
 3. Run the command below to add the credentials used by ArgoCD or Flux:
@@ -290,10 +301,10 @@ ACM.
    gpg_private_key=$(cat /tmp/gpg_key)
    sops set config.yaml \
        '["common"]["gitops"]["repo"]["secrets"]["ssh_key"]' \
-       "$ssh_public_key"
+       "$(echo '{"foo": 1}' | jq --arg text "$ssh_private_key" '.foo|=$text|.foo|tostring')"
    sops set config.yaml \
        '["common"]["gitops"]["repo"]["secrets"]["cluster_gpg_key"]' \
-       "$gpg_private_key"
+       "$(echo '{"foo": 1}' | jq --arg text "$gpg_private_key" '.foo|=$text|.foo|tostring')"
    ```
 
 ##### Configuring the OpenShift Pull Secret
@@ -303,13 +314,12 @@ managed clusters that the example app will be hosted from.
 
 1. Obtain your pull secret. Visit [this
    page](https://console.redhat.com/openshift/install/aws/installer-provisioned),
-   then click on "Copy pull secret" to, well, copy your pull secret!
+   then click on "Download pull secret" to, well, download your pull secret!
 
 2. Run the command below to update your config with the pull secret:
 
    ```sh
-   secret="PASTE_SECRET_HERE"
-   sops set config.yaml '["common"]["ocp_pull_secret"]'  "$(jq tostring <<< "$secret")"
+   sops set config.yaml '["common"]["ocp_pull_secret"]'  "$(jq tostring < ~/Downloads/pull-secret)"
    ```
 
 ##### Setting the Portworx license key
@@ -320,7 +330,7 @@ Run the command below to set your Portworx license in the config:
 export PORTWORX_LICENSE_KEY="really-long-string"
 sops set config.yaml \
     '["common"]["datareplication"]["settings"]["credentials"]["license_key"]' \
-    "$PORTWORX_LICENSE_KEY"
+    "\"$PORTWORX_LICENSE_KEY\""
 ```
 
 ##### Configuring the App Database
@@ -336,27 +346,106 @@ for t in username password database
 do
     k="DB_${t^^}"
     v="${!k}"
-    sops set config.yaml '["common"]["database"]["settings"]["'"$t"'"]' "\"$v\""
+    sops set config.yaml '["common"]["database"]["settings"]["credentials"]["'"$t"'"]' "\"$v\""
 done
 ```
 
-> 📝 **NOTE**
->
-> You can also use [Flux](https://fluxcd.io) to bootstrap ACM components. Set
-> the `bootstrapper` key underneath `common.bootstrap` to `flux` if you'd like
-> to do this.
+##### (Optional) Change the GitOps tool for cluster bootstrapping
 
-## 🛫 Deploy the Environment
+This demo uses ArgoCD via OpenShift GitOps to bootstrap the primary and backup
+ACM hubs and OpenShift clusters managed by the primary hub.
 
-Update any secrets in the repo if this is the first time you're running this
-demo:
+Run the command below if you'd like to use Flux instead:
+
+```sh
+sops set config.yaml \
+  '["common"]["bootstrap"]["bootstrapper"]' \
+  '"flux"'
+```
+
+> **NOTE**: ArgoCD is always used for configuring the managed OpenShift
+> clusters.
+
+##### Checking your work
+
+Run the command below to produce a diff of your config file against the example:
+
+```sh
+diff -y config.example.yaml config.yaml
+```
+
+Your results should look similar to [this](./static/docs/good-config-diff).
+
+## Prepare to deploy the environment
+
+1. Re-encrypt Kubernetes secrets in this repo with your new GPG key:
 
 ```sh
 # Add --help to see what else you can do with this script.
-./deploy.sh --regenerate-secrets --secrets-only
+./deploy.sh --prepare
 ```
 
-Commit and push your changes, then run the deploy script again:
+2. Use the pre-commit hook included with this repository to confirm that you
+   aren't exposing any secrets
+
+   ```sh
+   .githooks/commit-msg
+   ```
+
+   You should see output similar to the below:
+
+   ```
+    grep: : No such file or directory
+    [PRE-COMMIT] Running gitleaks command: 'gitleaks dir -v .'...
+
+        ○
+        │╲
+        │ ○
+        ○ ░
+        ░    gitleaks
+
+    9:38PM INF scanned ~331734 bytes (331.73 KB) in 70.8ms
+    9:38PM INF no leaks found
+    [PRE-COMMIT] Running gitleaks command: 'gitleaks git --platform github -v .'...
+
+        ○
+        │╲
+        │ ○
+        ○ ░
+        ░    gitleaks
+
+    9:38PM INF 652 commits scanned.
+    9:38PM INF scanned ~2121080 bytes (2.12 MB) in 1.08s
+    9:38PM INF no leaks found
+   ```
+
+   You'll see this instead if you accidentally exposed a secret:
+
+   ```
+   $: .githooks/commit-msg
+    grep: : No such file or directory
+    [PRE-COMMIT] Running gitleaks command: 'gitleaks dir -v .'...
+    
+        ○
+        │╲
+        │ ○
+        ○ ░
+        ░    gitleaks
+    
+    Finding:     some secret
+    Secret:      some secret
+    RuleID:      private-key
+    Entropy:     5.429652
+    File:        delte.yaml
+    Line:        228
+    Fingerprint: delte.yaml:private-key:228
+    ```
+
+3. Commit and push your changes.
+
+## 🛫 Deploy the Environment
+
+Finally! Let's deploy:
 
 ```sh
 # Add --help to see what else you can do with this script.
@@ -397,6 +486,10 @@ This will do the following:
 - Create a failover CNAME DNS record in the AWS Route53 zone for the domain you
   set the `common.dns.settings.domain_name` key to in your `config.yaml`
   configuration file.
+
+> 📝 **NOTE**: If you make changes to your configuration after deploying, run
+> `./deploy.sh --regenerate-secrets --update` first and commit, then push, your
+> changes before running `./deploy.sh`.
 
 ### Watching progress
 
@@ -608,3 +701,10 @@ clusters you created earlier.
 ```
 ./teardown.sh
 ```
+
+## Having Trouble?
+
+Check out the [troubleshooting](./TROUBLESHOOTING.md) guide if you're running
+into issues during or after deployment or [raise an
+issue](https://github.com/carlosonunez-redhat/openshift-for-multicloud-demo/issues/new)
+if you need more assistance!
