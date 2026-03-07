@@ -1,0 +1,8 @@
+---
+creation_rules:
+  - path_regex: 'config.yaml$'
+    pgp: replace me!
+    encrypted_comment_regex: '^[ ]{0,}encrypted$'
+  - path_regex: 'infra/secrets/.*.yaml$'
+    pgp: replace me!
+    encrypted_regex: '^(data|stringData)$'

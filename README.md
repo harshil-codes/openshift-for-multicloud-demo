@@ -95,6 +95,21 @@ AWS and failover into Google Cloud.
 
 ### Instructions
 
+#### (Optional) For Red Hatters: Request RHDP Demo Environments
+
+If you don't have OpenShift clusters in AWS and GCP to deploy demo
+infrastructure into, request the following environments in Red Hat Demo
+Platform:
+
+
+- AWS with OpenShift Open Environment
+- OpenShift 4 for Google Cloud Platform
+- AWS Blank Open Environment
+- GCP Blank Open Environment
+
+It will take 45-60 minutes for the OpenShift environments to provision. Wait
+for those to become ready before continuing.
+
 #### Create a SSH and GPG key for your repo and clusters
 
 This environment uses GitOps to bootstrap ACM and the OpenShift clusters that
@@ -117,13 +132,13 @@ secrets in this section as well.
    configs.
 
     ```sh
-    gpg --quick-gen-key --batch --yes --passphrase '' your@email.address
+    gpg --quick-gen-key --batch --yes --passphrase '' openshift-multicloud-demo
     ```
 
 2. Confirm that your key has been created by running the command below:
 
     ```sh
-    gpg --list-keys your@email.address
+    gpg --list-keys openshift-multicloud-demo
     ```
 
     which should produce output similar to the below:
@@ -135,7 +150,7 @@ secrets in this section as well.
     gpg: next trustdb check due at 2028-10-13
     pub   ed25519 2025-10-14 [SC] [expires: 2028-10-13]
           ABCDEF01234567890ABCDEF01234567890ABCDEF
-    uid           [ultimate] your@email.address
+    uid           [ultimate] openshift-multicloud-demo
     sub   cv25519 2025-10-14 [E]
     ```
 
@@ -143,7 +158,7 @@ secrets in this section as well.
    compatible with the version of `gpg` that ships with the UBI8 base image that
    ArgoCD was built off of. Follow these instructions to do that:
 
-   - Enter key edit mode: `gpg --expert --edit-key your@email.address`
+   - Enter key edit mode: `gpg --expert --edit-key openshift-multicloud-demo`
    - Remove the encryption mode from the key's preferences:
      `setpref AES256 AES192 AES SHA512 SHA384 SHA256 SHA224 ZLIB BZIP2 ZIP`
    - Hit `y` after it asks you to `Really update the preferences?`
@@ -152,7 +167,7 @@ secrets in this section as well.
 4. Export the private key for the GPG key that you created:
 
    ```sh
-   gpg --export-secret-key --armor your@email.address > /tmp/gpg_key
+   gpg --export-secret-key --armor openshift-multicloud-demo > /tmp/gpg_key
    ```
 
 ##### Creating the SSH Key
@@ -189,12 +204,14 @@ secrets in this section as well.
 2. Configure your repository with a SSH key that can be used for cloning. Click
    on "Settings" then on "Deploy Keys", then click on "Add Deploy Key".
 
+   ![](./static/images/deploy-key-pre.png)
+
    ![](./static/images/deploy-key.png)
 
    On the next page, give your key a name, then paste the public key you copied
    earlier in the boxes shown. Once done, click "Add Key" to add the key.
 
-   ![](./static/images/deploy-key-filled.png)
+   ![](./static/images/deploy-key-write.png)
 
    You do **not** need to give this key write access.
 
@@ -209,6 +226,19 @@ Follow the steps below to create a new one.
 
 ##### Creating the config file
 
+1. Configure sOps to use the GPG key that you created:
+
+   ```sh
+    fpr=$(gpg --list-keys --with-colons openshift-multicloud-demo | \
+        grep fpr | \
+        head -1 | \
+        rev | \
+        cut -f2 -d ':' | \
+        rev)
+   cp .sops.example.yaml .sops.yaml &&
+     sed -Ei '' "s/pgp:.*/pgp: $fpr/g" .sops.yaml
+   ```
+
 2. Create a new config file from the example:
 
     ```sh
@@ -217,21 +247,7 @@ Follow the steps below to create a new one.
 
     **DO NOT MODIFY `config.yaml` YET!**
 
-3. Run the command below to obtain the fingerprint for the GPG key that you created:
-
-    ```sh
-    gpg --list-keys --with-colons your@email.address | \
-        grep fpr | \
-        head -1 | \
-        rev | \
-        cut -f2 -d ':' | \
-        rev
-    ```
-
-4. Open `.sops.yaml` in an editor and update the `pgp` keys in `.sops.yaml` with
-   the fingerprint you obtained above.
-
-5. Encrypt the `config.yaml` file that you created:
+3. Encrypt the `config.yaml` file that you created:
 
    ```sh
    sops encrypt --output config.yaml config.yaml

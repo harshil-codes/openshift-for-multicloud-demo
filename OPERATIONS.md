@@ -64,7 +64,7 @@ The decryption passphrase is contained in the `GPG Passphrase` field.
 
 #### For Red Hatters
 
-1. Request the following demo catalogs:
+1. Request the following demo catalogs if you haven't already:
 
    - AWS with OpenShift Open Environment
    - OpenShift 4 for Google Cloud Platform
