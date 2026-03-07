@@ -6,6 +6,7 @@ metadata:
   annotations:
     portworx.io/is-openshift: "true"
     portworx.io/service-type: "portworx-api:LoadBalancer"
+    argocd.argoproj.io/sync-wave: "-99"
 spec:
   image: portworx/oci-monitor:3.4.1
   imagePullPolicy: Always

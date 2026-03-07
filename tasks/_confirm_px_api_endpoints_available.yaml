@@ -1,12 +1,31 @@
 ---
 - name: "[{{ item.cloud }}] Confirm that there's at least one ready Portworx API service"
-  register: eps
-  kubernetes.core.k8s_info:
-    kubeconfig: "{{ item.kubeconfig }}"
-    api_version: v1
-    kind: Endpoints
-    name: portworx-api
-    namespace: portworx
-
-- set_fact:
-    "api_endpoints_ready_{{ item.cloud }}": "{{ eps.resources[0].subsets[0].addresses | default([]) | length }}"
+  block:
+    - set_fact:
+        attempts: "{{ 0 if attempts is undefined else attempts | int + 1 }}"
+    - register: eps
+      kubernetes.core.k8s_info:
+        kubeconfig: "{{ item.kubeconfig }}"
+        api_version: v1
+        kind: Endpoints
+        name: portworx-api
+        namespace: portworx
+    - set_fact:
+        ready: "{{ eps.resources[0].subsets[0].addresses | default([]) | length }}"
+    - fail:
+        msg: "No Portworx endpoints available in cloud '{{ item.cloud }}'"
+      when: ready | int == 0
+  rescue:
+    - set_fact:
+        "portworx_not_ready_in_{{ item.cloud }}": true
+      when: attempts | int == 180
+    - fail:
+        msg: "Portworx endpoint in cloud '{{ item.cloud }}' never became available"
+      when: attempts | int == 180
+    - pause:
+        seconds: 1
+    - debug:
+        msg: "Waiting for Portworx API endpoint in cloud '{{ item.cloud }}' to come up (attempt #{{ attempts }}/180)"
+    - include_tasks: tasks/_confirm_px_api_endpoints_available.yaml
+      loop:
+        - "{{ item }}"

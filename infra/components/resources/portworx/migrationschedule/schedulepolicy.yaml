@@ -2,6 +2,8 @@ apiVersion: stork.libopenstorage.org/v1alpha1
 kind: SchedulePolicy
 metadata:
   name: px-schedule-policy 
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 policy:
   interval:
     intervalMinutes: 15

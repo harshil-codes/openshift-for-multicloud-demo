@@ -6,8 +6,8 @@
     - "{{ destination }}"
 
 - fail:
-    msg: No Portworx endpoints are available in cloud '{{ item.cloud }}'. Check the StorageCluster for initialization errors.
-  when: vars['api_endpoints_ready_' + item.cloud] is not defined or vars['api_endpoints_ready_' + item.cloud] | int == 0
+    msg: "Portworx API endpoint check failed in '{{ item.cloud }}'"
+  when: vars['portworx_not_ready_in_' + item.cloud] is defined
   loop:
     - "{{ source }}"
     - "{{ destination }}"

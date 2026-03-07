@@ -106,3 +106,23 @@ patches:
         - op: add
           path: /spec/syncPolicy/syncOptions/1
           value: SkipDryRunOnMissingResource=true
+        - op: add
+          path: /spec/syncPolicy/syncOptions/2
+          value: RespectIgnoreDifferences=true
+        - op: add
+          path: /spec/ignoreDifferences
+          value:
+            - group: cluster.open-cluster-management.io
+              kind: ManagedCluster
+              jsonPointers:
+                - /metadata/labels/cloud
+                - /metadata/labels/name
+                - /metadata/labels/vendor
+            - group: operator.open-cluster-management.io
+              kind: MultiClusterHub
+              jsonPointers:
+                - /spec/overrides/components
+            - group: multicluster.openshift.io
+              kind: MultiClusterEngine
+              jsonPointers:
+                - /spec/overrides/components

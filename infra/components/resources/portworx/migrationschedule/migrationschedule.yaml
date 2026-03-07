@@ -4,6 +4,8 @@ kind: MigrationSchedule
 metadata:
   name: change-me
   namespace: portworx
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   schedulePolicyName: px-schedule-policy
   suspend: false
