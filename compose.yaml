@@ -32,12 +32,14 @@ services:
       - CONTAINER_HOST=unix:///container_engine.sock
       - DOCKER_HOST=unix:///container_engine.sock
       - SKIP_PREFLIGHT
+      - ANSIBLE_EXTRA_VARS_OADP_BUCKET
     command:
       - -c
       - |-
         ansible-playbook --extra-vars '@/data/config.yaml' \
           --extra-vars cluster_key_fp=$CLUSTER_KEY_FP \
           --extra-vars skip_preflight=$SKIP_PREFLIGHT \
+          --extra-vars oadp_bucket=$ANSIBLE_EXTRA_VARS_OADP_BUCKET \
           "${ANSIBLE_PLAYBOOK}" |
           grep --color=always -Ev --line-buffered 'included: /work/tasks'
   confirm_config_usable:

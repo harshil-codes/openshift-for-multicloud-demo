@@ -129,15 +129,10 @@ common:
             # In this demo, we assume that this will live in AWS S3. However, you can
             # set this to a third-party S3 storage provider, like Cloudflare R2, to
             # further decouple your infrastructure from the major hyperscalers.
-            # encrypted
             aws:
                 # common.dataprotection.settings.aws.region: The region where the bucket for the
                 # backups taken by OADP in the ACM hub will live.
                 region: us-east-2
-                # common.dataprotection.settings.aws.region: The bucket for the
-                # backups taken by OADP in the ACM hub will live.
-                bucket:
-                    key: change me!
                 # common.dataprotection.settings.aws.region: The credentials filebucket for the
                 # backups taken by OADP in the ACM hub will live.
                 # encrypted
