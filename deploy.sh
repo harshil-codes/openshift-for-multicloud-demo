@@ -22,6 +22,8 @@ OPTIONS
   --kustomizations-only    Refresh secrets and managed cluster kustomizations.
   --repo-urls-only         Refresh secrets and repo URLs in GitOpsServer resources.
   --skip-preflight         Live dangerously and skip preflight checks
+  --prepare                Regenerates secrets and bootstrap kustomizations, then exits.
+  --update                 Updates kustomizations and secrets after a change to the config, then exits.
 
 ENVIRONMENT VARIABLES
 
@@ -834,25 +836,46 @@ decrypt_gitops_secrets_into_secrets_volume() {
 
 }
 
+regenerate_cluster_sops_config() {
+  sed -i '' "s,pgp: .*,pgp: $(_cluster_pgp_key_fp)," \
+    "$(dirname "$0")/infra/secrets/gitops/sops_config.yaml"
+}
+
 set -e
 show_help_if_requested "$@"
 preflight || exit 1
 update_dataprotection_buckets
 update_app_route_hostnames
-secrets_regeneration_requested "$@" && REGENERATE_SECRETS=true
+{ prepare_environment "$@" || secrets_regeneration_requested "$@"; } && REGENERATE_SECRETS=true
 generate_cluster_secrets
+decrypt_gitops_secrets_into_secrets_volume
 if refresh_secrets_only "$@"
 then
   op=updated
-  test "${REGENERATE_SECRETS,,}" == 'true' && op=created
+  _regenerate_secrets && op=created
   >&2 echo "INFO: Secrets $op (if needed); stopping."
   exit 0
 fi
 regenerate_repo_urls
 regenerate_target_revisions
+regenerate_cluster_sops_config
 if refresh_repo_urls_only "$@"
 then
   >&2 echo "INFO: Repo URLs updated; stopping."
+  exit 0
+fi
+if update_environment "$@"
+then
+  >&2 echo "INFO: Your kustomizations and secrets have been updated.
+
+Commit and push the changes made to this repository, then run './deploy.sh' to create it."
+  exit 0
+fi
+if prepare_environment "$@"
+then
+  >&2 echo "INFO: You're ready to create the demo environment.
+
+Commit and push the changes made to this repository, then run './deploy.sh' to create it."
   exit 0
 fi
 update_clusterdeployment_kustomizations 'aws' 'gcp'
@@ -868,7 +891,6 @@ create_data_volume
 upload_config_into_data_volume
 
 create_secrets_volume
-decrypt_gitops_secrets_into_secrets_volume
 if skip_preflight_checks "$@"
 then deploy_skip_preflight
 else deploy
