@@ -50,6 +50,8 @@ patches:
                 value: /.config
               - name: SOPS_CONFIG
                 value: /.config/sops/.sops.yaml
+              - name: ARGOCD_RECONCILIATION_TIMEOUT
+                value: 30s
             initContainers:
             - name: fetch-ksops
               image: curlimages/curl:8.7.1
