@@ -180,7 +180,7 @@ environments:
       cloud_config:
         networking:
             region: us-east1
-            domain: change me!
+            domain: pvnbw.gcp.redhatworkshops.io
         # encrypted
         credentials:
             project: ENC[AES256_GCM,data:cnOBflgU/Vbvz8bAeQ==,iv:KaIsxe0LkCIPRTwuLiBBHTCceVrTDWMO1WYeXL2DZYc=,tag:cd/6hwErjRHDKG4oCT4cuQ==,type:str]
@@ -258,8 +258,8 @@ environments:
                   user:
                     token: ENC[AES256_GCM,data:R7qXA5uEzhZ328SqgwQaBYAQy3sLDg6/OqlD+Bx/BtE86lAD77etma4yY2/aNM4aW4JKprqI1eCOUBJnW1G++JUMr5SOZE8B60CeiMvA9s8c2HZIWQCxWTos6Br+b+AOsFz7AdiXftixBnJk6g102WuTevOZzulr1iz0p1v27rFikb0E01qzbnM5+thp+3xCop8khYHQfEKhtRJBsBgB3AgTZdP3m47S82rgN67l0LYVCBOrLOsCmgcluSH5dPzFr53qp/yh3hkAxWqW1xzvn1NqEyAFYb8z0NLJFZ+GWK4QQ+Ht+G7nu3us5XLfEz57TsFF/3dHcXB53JZ0KXufZjy+D/6L22O4CBecb2EO2O7WFEZeZR5ZecxRLcLFjJjxOscpOGh7UXPEItFLHlxgUjt6O5W2LrDkXvd/B9/MI0AyqGonZhyJPgaVieDBmmzaVA0CxE7rYFn0gp0D3Dk+tEsnN73RHP6macwLYEXZlWAGrHAwT5cytIGdTrbv9AH+QOTPPn8qrDT1AhlDg8m2WVejD0A6K+emqNkQCm3HHKYw48HMLF/2zZLUHQJsZkrlCUF4OB9E99rit9ZwWjr81wMD7X2ORuVrXsiFnPh+yj5wLl5FoJUc7+pn2E4eKfiopSSqv7CqTfmi6hTaENsaESgcc8HiYCE5+qMrpLW+tMF2kbO4oBsdzLzvcJUPFngbkbND4Ure7ZsgKRQMuo5yHVdsIszFQKAdlKzQWw8zKIuNeT5wi7tyVgiSEedbWPb7sZjoyhEvwx0yNcA4o9AzVLT2vjpyowBe3hb5E7lEeHdJW6JjHPzlpoyt69Pxn0Bz6G7uw6iYeGezNPBV3aeg7ahMVPfRjaUxX/VZlda+Rs23csuvxpNBx6gvou2ZF7EdvZhi5Lbk+35feq+W/6RQjCM3+WcCyft74AsjQ7qbIIb/Ep73ezQGHXG+WmmlllSBaWh+EfP3VYZCkFAmi2aGJyGAofg4x6eguzejDTxGAkr/0mCSm5bpFnqAhmKiZuTiOiRzAuNmtlH7mVi2Pq3ptM3a/T6VTtSUNPGv/ZRkhlu5rn0n/WZLmLv6VKDDD5TIqsxUh6iKPS/4Pc7SpgJcfGslH8dOIWQ6hnl3NNWfphimwAQkycqz9Cr4Vru8/UO+BtNmjaWIRxQbCJchHUXKQor4/BEcwBebZT91/tnjcV8qQBeZCUiTu5B6plX+E3X76BxN3U4dLoWi/wmCThP40v6A/V1Xy2lkGiqX+It6cRC6A/VioVvNV9GCpAb7HagFxr40AU0p92Eq6mV5GtnM4QYQtTEtEtfLNnQcXlmr5ddsfHiIs7qpfD8Vf0vVG0c4DJFkhaoRUr0UTLaTKtYP/yPgE6QR9aDV7qtsmT0yqDth4CzudxEEQJ3hIbgBoHpp6vJUvHp3ReOqVTcyoYtnemKM7Oa9ylpD2GmlZTJOgtk4351J9PbSCp2wkvSwU2HljXB2ALCKarSLSQTewCsXXnj0hjNPCkS5YovuiPJYyNsBaehs+3usw7yH3z6nKzpD02v3YppMhr5wMXgvy7865EI9r/VulhYSA4EgnP/bk5qtAVvkZ7LtaXtsngCUVgnbesrE4YPhAXTbigBqgowWRsCHB9XUUOJA6oD+HPpe7n/MELLp1Sp4ne7snzzYWrEM2Dg6NtyUKMMoff+VMeQwpMRH5cXlioktzK4=,iv:8GQ1BLx0LzCyYpVew/jkK//ijc7EyLPsETEMkCYdB+8=,tag:AApph3crxrumfAOmGlYkCw==,type:str]
 sops:
-    lastmodified: "2026-03-10T02:05:27Z"
-    mac: ENC[AES256_GCM,data:Lh0IPmZEMVRPiDnGCa/LCLtrwfnWrSKdfXeVEOdvg5CYipxTgbuO6dsE7Xl2VU99+la2YyKzp5aQNNxtp7xvMvAwNIRWBbtnYuxg6fTHukDFnEMcFx49OCO7F0N8YqvaQggB629sTr2SOZbve64HLBzRd87sifFKyf0b1ndfz3A=,iv:u9GhSSA0/1sAvLkP7qTtr5eMTrs7f23WzdbP3kE8P34=,tag:lXBKOWx+VCfL8CC2mQVw3Q==,type:str]
+    lastmodified: "2026-03-10T18:07:28Z"
+    mac: ENC[AES256_GCM,data:eTnhwSQQC1XOI1WVQYkfc5OJ9rlBAJIYP9hvkilQ4crFZScsIlKCRPHT4OMvY4/ZQe0xZ/TYlyA6sD8u/5C+mig6eoK1hIUzu68VLyUQskCQW5M4HDg/GlYYTb0/hwaZH0116o5NLZloTKhebUfDnkOo8lNkbybRM2i3lX3p87k=,iv:rWvvFbXaFQqpfS4XzhYyWdhiMwNG4Miw0gCDD/zYAQw=,tag:NU2LAkeqA+G6CvZ5MRzJFA==,type:str]
     pgp:
         - created_at: "2026-03-09T14:16:47Z"
           enc: |-
