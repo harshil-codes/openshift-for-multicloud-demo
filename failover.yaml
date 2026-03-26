@@ -18,19 +18,19 @@
       vars:
         env: "{{ primary_environment }}"
 
-    - name: Pause all Flux kustomizations in the backup ACM hub
-      when: boostrapper == 'flux'
-      shell: |-
-        echo "{{ backup_environment.cluster.kubeconfig }}" > /tmp/kubeconfig
-        oc --kubeconfig=/tmp/kubeconfig get -n flux-system kustomization -o name |
-          grep -v cluster-config |
-          xargs -I {} oc --kubeconfig=/tmp/kubeconfig patch \
-            -n flux-system {} \
-            --type merge \
-            --patch '{"spec":{"suspend":true}}'
-        rc=$?
-        rm /tmp/kubeconfig
-        exit $rc
+#    - name: Pause all Flux kustomizations in the backup ACM hub
+#      when: boostrapper == 'flux'
+#      shell: |-
+#        echo "{{ backup_environment.cluster.kubeconfig }}" > /tmp/kubeconfig
+#        oc --kubeconfig=/tmp/kubeconfig get -n flux-system kustomization -o name |
+#          grep -v cluster-config |
+#          xargs -I {} oc --kubeconfig=/tmp/kubeconfig patch \
+#            -n flux-system {} \
+#            --type merge \
+#            --patch '{"spec":{"suspend":true}}'
+#        rc=$?
+#        rm /tmp/kubeconfig
+#        exit $rc
 
     - name: Failover Portworx volumes
       debug:
