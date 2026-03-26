@@ -48,7 +48,8 @@
           apiVersion: cluster.open-cluster-management.io/v1beta1
           kind: Restore
           metadata:
-            name: "acm-restore-{{ lookup('community.general.random_string', length=12, special=false, upper=false) }}"
+#            name: "acm-restore-{{ lookup('community.general.random_string', length=12, special=false, upper=false) }}"
+            name: "acm-restore-test"
             namespace: open-cluster-management-backup
           spec:
             restoreSyncInterval: 1m
