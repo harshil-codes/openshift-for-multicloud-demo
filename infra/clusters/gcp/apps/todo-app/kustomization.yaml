@@ -39,6 +39,9 @@ patches:
           suffix: -c
           labels:
             failure-domain.beta.kubernetes.io/zone: us-east1c
+      - op: add
+        path: /spec/dataStore/pvc/spec/storageClassName
+        value: px-csi-db
   - target:
       kind: ConfigMap
       name: db-config
