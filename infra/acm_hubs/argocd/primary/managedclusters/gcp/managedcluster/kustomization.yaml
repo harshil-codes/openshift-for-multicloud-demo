@@ -52,7 +52,7 @@ patches:
     patch: |-
       - op: replace
         path: /spec/baseDomain
-        value: change me!
+        value: gv7d5.gcp.redhatworkshops.io
       - op: replace
         path: /metadata/name
         value: managed-cluster-gcp

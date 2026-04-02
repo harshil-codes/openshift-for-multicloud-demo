@@ -10,6 +10,14 @@ generators:
   - ./credentials_generator.yaml
 patches:
   - target:
+      kind: Route
+      name: cockroachdb
+      namespace: cockroachdb
+    patch: |-
+      - op: replace
+        path: /metadata/namespace
+        value: example-todo-app
+  - target:
       kind: CrdbCluster
       name: crdb-cluster
       namespace: cockroachdb
